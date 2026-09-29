@@ -3,11 +3,17 @@ import faqData from "./data/faq.json";
 import { prisma } from "@/lib/prisma";
 import JsonLd from "@/components/JsonLd";
 import { generateFAQSchema, generateBreadcrumbSchema } from "@/lib/seo-schema";
+import { getPageMetadata } from "@/lib/metadata";
 
-export const metadata = {
-  title: "Frequently Asked Questions | Brisbane Cleaning Experts",
-  description: "Find answers to commonly asked questions about our bond cleaning, carpet cleaning, and pest control services in Brisbane.",
-};
+export async function generateMetadata() {
+  return getPageMetadata({
+    slug: "faqs",
+    defaultTitle: "Frequently Asked Questions | Brisbane Carpet & Pest Experts",
+    defaultDescription:
+      "Find answers to commonly asked questions about our bond cleaning, carpet cleaning, and pest control services in Brisbane.",
+    path: "/company/faqs",
+  });
+}
 
 export const revalidate = 60; // ISR revalidation every 60 seconds
 
@@ -17,12 +23,11 @@ export default async function FAQPage() {
 
   try {
     const dbCategories = await prisma.faqCategory.findMany({
-      where: { isActive: true },
-      orderBy: { sortOrder: "asc" },
+      orderBy: { order: "asc" },
       include: {
         faqs: {
           where: { isActive: true },
-          orderBy: { sortOrder: "asc" },
+          orderBy: { order: "asc" },
         },
       },
     });
@@ -63,7 +68,7 @@ export default async function FAQPage() {
   const faqSchema = generateFAQSchema(allFaqsForSchema);
   const breadcrumbs = generateBreadcrumbSchema([
     { name: "Home", url: "/" },
-    { name: "Company", url: "/about" },
+    { name: "Company", url: "/about-us" },
     { name: "FAQs", url: "/company/faqs" },
   ]);
 

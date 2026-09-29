@@ -7,6 +7,7 @@ import MainCard from './components/homepage/MainCard';
 import Floatingbubbles from './components/homepage/Floatingbubbles';
 import { prisma } from '@/lib/prisma';
 import { getPageMetadata } from '@/lib/metadata';
+import { DEFAULT_HOMEPAGE_SECTIONS } from '@/lib/homepage-defaults';
 
 export const revalidate = 60; // Instant response with background revalidation
 
@@ -21,14 +22,27 @@ export async function generateMetadata() {
 
 export default async function Home() {
   let dbArticles: any[] = [];
+  let homepageSections = DEFAULT_HOMEPAGE_SECTIONS;
 
   try {
-    const blogs = await prisma.blog.findMany({
-      where: { status: 'PUBLISHED' },
-      include: { category: true },
-      orderBy: { publishedAt: 'desc' },
-      take: 3,
-    });
+    const [blogs, settingRecord] = await Promise.all([
+      prisma.blog.findMany({
+        where: { status: 'PUBLISHED' },
+        include: { category: true },
+        orderBy: { publishedAt: 'desc' },
+        take: 3,
+      }),
+      prisma.siteSetting.findUnique({
+        where: { key: 'homepage_sections' },
+      }),
+    ]);
+
+    if (settingRecord && settingRecord.value) {
+      try {
+        const parsed = JSON.parse(settingRecord.value);
+        homepageSections = { ...DEFAULT_HOMEPAGE_SECTIONS, ...parsed };
+      } catch (e) {}
+    }
 
     if (blogs && blogs.length > 0) {
       dbArticles = blogs.map((b) => ({
@@ -45,7 +59,7 @@ export default async function Home() {
       }));
     }
   } catch (err) {
-    console.error('Error loading homepage articles:', err);
+    console.error('Error loading homepage dynamic data:', err);
   }
 
   const fallbackArticles = [
@@ -76,6 +90,7 @@ export default async function Home() {
   ];
 
   const articles = dbArticles.length > 0 ? dbArticles : fallbackArticles;
+  const cta = homepageSections.whatCanWeClean || DEFAULT_HOMEPAGE_SECTIONS.whatCanWeClean;
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#f9f7f3] py-10 px-4">
@@ -97,17 +112,16 @@ export default async function Home() {
         </div>
       </div>
 
-      {/* What Can We Clean Section */}
+      {/* Dynamic What Can We Clean Section */}
       <section className="mt-30 w-full max-w-7xl mx-auto px-4">
         <div className="relative bg-[#ff7f00] rounded-[40px] overflow-hidden min-h-[420px] md:min-h-[500px] flex items-center">
           <div className="relative z-10 p-8 md:p-16 max-w-xl text-white animate-slideFade">
             <h1 className="text-3xl md:text-5xl font-bold leading-tight mb-6">
-              What Can We Clean<br />
-              For You Today?
+              {cta.heading || "What Can We Clean For You Today?"}
             </h1>
 
             <p className="text-lg mb-10">
-              Book Your Clean Now
+              {cta.subheading || "Book Your Clean Now"}
             </p>
 
             {/* Call Button */}
@@ -115,7 +129,7 @@ export default async function Home() {
               <div className="relative">
                 <div className="absolute inset-0 rounded-full animate-pulseRing"></div>
                 <a
-                  href="tel:0434061188"
+                  href={`tel:${cta.phoneTel || '0434061188'}`}
                   className="relative w-14 h-14 bg-white text-orange-500 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition"
                   aria-label="Call Us"
                 >
@@ -124,7 +138,7 @@ export default async function Home() {
               </div>
 
               <p className="text-lg font-semibold">
-                Call us: <a href="tel:0434061188" className="font-bold hover:underline">0434 061 188</a>
+                Call us: <a href={`tel:${cta.phoneTel || '0434061188'}`} className="font-bold hover:underline">{cta.phone || "0434 061 188"}</a>
               </p>
             </div>
           </div>
@@ -132,7 +146,7 @@ export default async function Home() {
           {/* Image Wrapper */}
           <div className="absolute right-0 bottom-0 md:top-0 md:bottom-auto w-full md:w-1/2 flex justify-center md:justify-end pointer-events-none">
             <img
-              src="/assets/home/we-are.png"
+              src={cta.cleanerImage || "/assets/home/we-are.png"}
               alt="Professional Brisbane Cleaner"
               className="max-h-[420px] md:max-h-[520px] object-contain translate-y-6 md:translate-y-0 transition-all duration-700"
             />
@@ -141,7 +155,7 @@ export default async function Home() {
           {/* Award Badge */}
           <div className="absolute top-6 right-6 z-20">
             <img
-              src="/assets/home/100-Satisfaction.png"
+              src={cta.awardBadgeImage || "/assets/home/100-Satisfaction.png"}
               alt="100% Satisfaction Guarantee"
               className="w-20 md:w-24 drop-shadow-lg"
             />

@@ -48,6 +48,7 @@ const NAV_ITEMS = [
     { name: "Customers", href: "/admin/customers", icon: Users2 },
   ]},
   { group: "Content & Catalog", items: [
+    { name: "Homepage CMS", href: "/admin/homepage", icon: Sparkles },
     { name: "Services", href: "/admin/services", icon: Sparkles },
     { name: "CMS Pages", href: "/admin/pages", icon: FileText },
     { name: "Blog Posts", href: "/admin/blogs", icon: BookOpen },

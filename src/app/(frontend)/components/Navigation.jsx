@@ -8,6 +8,23 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const pathname = usePathname();
+  const [settings, setSettings] = useState({
+    header_logo: "/logo.png",
+    site_logo: "/logo.png",
+    site_name: "Brisbane Carpet & Pest Experts",
+    site_slogan: "Eco-Friendly Steam Carpet Cleaning & Pest Control in Brisbane",
+  });
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.success && json.data) {
+          setSettings((prev) => ({ ...prev, ...json.data }));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const navLinks = [
     { name: "Home", href: "/" },
@@ -181,7 +198,11 @@ export default function Navbar() {
       <nav className="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <img src="/logo.png" alt="logo" className="h-8" />
+          <img
+            src={settings.header_logo || settings.site_logo || "/logo.png"}
+            alt={settings.site_name || "logo"}
+            className="h-8 max-w-[180px] object-contain"
+          />
           <span className="text-2xl font-semibold text-white">.</span>
         </Link>
 
