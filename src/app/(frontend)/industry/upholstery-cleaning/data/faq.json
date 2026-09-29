@@ -1,0 +1,28 @@
+{
+  "categories": [
+    {
+      "name": "Carpet Cleaning",
+      "items": [
+        {
+          "title": "Which Cleaning Plan Fits My Needs?",
+          "content": "Choosing the right upholstery cleaning plan ensures that your specific needs are addressed effectively. By selecting a tailored plan, you can benefit from targeted treatments for different fabrics and stains, leading to better results and prolonged upholstery life. Expert guidance helps match the plan with your requirements for optimal satisfaction."
+        },{
+          "title": "Am I Required to Sign a Long-Term Agreement?",
+          "content": "Many upholstery cleaning services offer flexible options without the need for a long-term agreement. This allows you to enjoy professional cleaning services without being locked into a contract. Opting for no long-term commitment provides freedom and flexibility, enabling you to choose services based on your current needs and preferences."
+        },
+        {
+          "title": "What Are the Accepted Payment Options?",
+          "content": "Understanding the available payment options for upholstery cleaning services is crucial for convenience and budget management. Most services accept various payment methods, including credit/debit cards, online payments, and sometimes even cash. Having multiple payment options ensures a hassle-free transaction process, making it easier to manage and complete your payments."
+        }
+        
+      ]
+    },
+    {
+      "name": "Pest Control",
+      "items": [
+        
+         
+      ]
+    }
+  ]
+}

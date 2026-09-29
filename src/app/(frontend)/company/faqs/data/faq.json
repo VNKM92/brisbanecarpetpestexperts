@@ -1,0 +1,111 @@
+{
+  "categories": [
+    {
+      "name": "Carpet Cleaning",
+      "items": [
+        {
+          "title": "What types of carpet cleaning services do you offer?",
+          "content": "We offer steam cleaning, dry cleaning, stain removal, and deep extraction for all carpet types."
+        },
+        {
+          "title": "How do I schedule a carpet cleaning service?",
+          "content": "You can schedule online or by phone — we offer same-week availability."
+        },
+        {
+          "title": "How often should I have my carpets professionally cleaned?",
+          "content": "We recommend having your carpets professionally cleaned every 6 to 12 months, depending on factors such as foot traffic, pets, and allergies. Regular cleaning helps maintain the appearance and lifespan of your carpets."
+        },
+        {
+          "title": "Are your cleaning products safe for children and pets?",
+          "content": "Yes, we use eco-friendly and non-toxic cleaning products that are safe for children and pets. Our priority is to ensure a clean environment without compromising safety."
+        },
+        {
+          "title": "Is your carpet cleaning process eco-friendly?",
+          "content": "Yes, we use eco-friendly cleaning solutions that are safe for both your family and the environment. Our methods effectively clean your carpets without leaving harmful residues."
+        },
+        {
+          "title": "How long does it take for my carpets to dry after cleaning?",
+          "content": "Drying times can vary depending on the cleaning method used, the type of carpet, and environmental conditions. Typically, carpets take between 4 to 12 hours to dry completely. We advise keeping the area well-ventilated to speed up the drying process."
+        },
+        {
+          "title": "What should I do to prepare for a carpet cleaning appointment?",
+          "content": "Before our team arrives, please clear the area of any personal items or furniture. This will help us clean your carpets more efficiently. We will move light furniture as needed and place protective pads under heavy items."
+        },
+        {
+          "title": "How do you handle pest control treatments?",
+          "content": "We provide comprehensive pest control treatments tailored to your specific needs. Our methods include inspection, treatment application, and follow-up services to ensure the complete eradication of pests."
+        },
+        {
+          "title": "Are your pest control treatments safe for my family and pets?",
+          "content": "Yes, we use safe and effective pest control solutions that are designed to minimize risks to your family and pets. Our team will provide guidance on any precautions you should take before, during, and after treatment."
+        },
+        {
+          "title": "Can I reschedule or cancel my appointment?",
+          "content": "Yes, you can reschedule or cancel your appointment by contacting us as soon as possible. We ask for at least 24 hours' notice to accommodate changes and avoid any cancellation fees."
+        },
+        {
+          "title": "How do you determine the cost of carpet cleaning or pest control services?",
+          "content": "The cost of our services depends on factors such as the size of the area to be cleaned or treated, the type of service required, and any additional treatments or cleaning solutions needed. We offer free quotes and can provide an estimate based on your specific needs."
+        },
+        {
+          "title": "What should I do if I find a pest after treatment?",
+          "content": "If you find pests after a treatment, please contact us immediately. We offer follow-up services and will reassess the situation to ensure the issue is fully resolved."
+        }
+        
+      ]
+    },
+    {
+      "name": "Pest Control",
+      "items": [
+        {
+          "title": "How can I prevent pests from entering my home?",
+          "content": "Regular cleaning, sealing cracks, and routine inspections help prevent pests."
+        },
+        {
+          "title": "Do you offer emergency pest control services?",
+          "content": "Yes, we provide same-day emergency pest control."
+        },
+        {
+          "title": "How long does it take for carpets to dry after cleaning?",
+          "content": "Typically, carpets take about 4-6 hours to dry after a professional cleaning. However, this can vary based on factors such as humidity, carpet type, and ventilation."
+        },
+        {
+          "title": "How do I know if I need professional pest control?",
+          "content": "If you notice signs of a pest infestation, such as droppings, unusual noises, or visible pests, it’s a good idea to consult a professional. Early intervention can prevent more significant issues and damage."
+        },
+        {
+          "title": "What are your payment options?",
+          "content": "We accept various payment methods including credit/debit cards, bank transfers, and cash. Payment details will be provided at the time of service scheduling."
+        },
+        {
+          "title": "Can I book both carpet cleaning and pest control services at the same time?",
+          "content": "Absolutely! We offer convenient bundled packages for customers who need both services. You can book them together online or call our team to customize a package that suits your needs."
+        },
+        {
+          "title": "How can I book an appointment?",
+          "content": "You can book an appointment by contacting us through our website, phone, or email. Our friendly staff will assist you in scheduling a convenient time for your service."
+        },
+        {
+          "title": "Do you offer any discounts or promotions?",
+          "content": "Yes, we periodically offer special discounts and promotions. Check our website or contact us directly to find out about any current offers and how you can benefit from them."
+        },
+        {
+          "title": "What areas do you service?",
+          "content": "We primarily serve Brisbane and the surrounding areas. If you’re unsure whether we cover your location, please contact us for more information."
+        },
+        {
+          "title": "Can you remove old or stubborn stains from carpets?",
+          "content": "Yes, we have specialized treatments and equipment for tackling old and stubborn stains. While some stains may be more challenging to remove completely, our team will work diligently to improve the appearance of your carpets."
+        },
+        {
+          "title": "How do you handle carpet cleaning for commercial properties?",
+          "content": "We offer tailored carpet cleaning services for commercial properties, including offices, retail spaces, and other business environments. Our team can schedule cleaning during off-hours to minimize disruption to your operations."
+        },
+        {
+          "title": "What are your hours of operation?",
+          "content": "Our standard hours of operation are Monday to Saturday, from 8:00 AM to 6:00 PM. We also offer flexible scheduling options and can arrange appointments outside of regular hours upon request."
+        }
+      ]
+    }
+  ]
+}

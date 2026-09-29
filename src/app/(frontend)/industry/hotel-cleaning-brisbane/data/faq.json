@@ -1,0 +1,28 @@
+{
+  "categories": [
+    {
+      "name": "Carpet Cleaning",
+      "items": [
+        {
+          "title": "Which Cleaning Plan Fits My Needs?",
+          "content": "Discovering the ideal cleaning plan ensures that your hotel's specific needs are met efficiently. Tailored options allow you to choose a service level that aligns with your operational requirements, budget, and guest expectations. Customized plans help maintain cleanliness standards while optimizing cost-effectiveness and operational efficiency."
+        },{
+          "title": "Am I Required to Sign a Long-Term Agreement?",
+          "content": "Flexibility is a significant advantage in hotel cleaning services. Many providers offer short-term or no long-term agreement options, allowing you to adjust services as needed. This flexibility ensures that you can adapt to seasonal changes or varying occupancy levels without being locked into extended commitments."
+        },
+        {
+          "title": "What Are the Accepted Payment Options?",
+          "content": "Convenient payment options enhance your experience with hotel cleaning services. Providers often accept various payment methods, including credit cards, direct bank transfers, and digital payments. This variety allows you to choose the method that best suits your financial management preferences and ensures a hassle-free transaction process."
+        }
+        
+      ]
+    },
+    {
+      "name": "Pest Control",
+      "items": [
+        
+         
+      ]
+    }
+  ]
+}

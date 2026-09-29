@@ -1,0 +1,347 @@
+/* Tailwind directives (required) */
+@import "tailwindcss";
+
+:root {
+  --background: #6d0a0a;
+  --foreground: #171717;
+}
+
+/* NOTE: the following block used `@theme inline` in your original file.
+   That's not standard CSS and will error unless you have a specific PostCSS/plugin
+   that supports it. It's commented out — re-enable only if you depend on it. */
+/*
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+*/
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #192522;
+     
+  }
+}
+
+/* fffdf9 fffdf8 
+*/
+html {
+  scroll-behavior: smooth;
+}
+
+.fade-in {
+  opacity: 0;
+  animation: fadeIn 1.2s ease forwards;
+}
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+body {
+   /* @apply bg-[#fffdf9] text-[#171717]; */
+   
+  background-color: #fffdf8;  
+  /* background: var(--background); */
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.hero-card.animate-in {
+  animation: fadeUp 600ms ease forwards;
+}
+
+/* this is use for testimonial page only */
+.swiper-pagination-bullet {
+  background: white !important;
+  opacity: 0.6;
+}
+.swiper-pagination-bullet-active {
+  background: #f97316 !important; /* orange accent */
+  opacity: 1;
+}
+
+.soft-glow {
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+}
+/* this is use for testimonial page only end */
+
+/* Tailwind custom styles */
+@layer components {
+  .card {
+    @apply bg-white rounded-xl shadow-lg hover:scale-105 hover:shadow-2xl;
+  }
+}
+
+       
+/* homepage L start dot code */
+    .pulse-circle {
+      position: relative;
+      z-index: 1;
+    }
+
+    .pulse-circle::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 9999px;
+      background-color: inherit;
+      animation: pulsate 1.2s ease-out infinite;
+      z-index: -1;
+    }
+
+    /* Pulse animation */
+    @keyframes pulsate {
+      0% {
+        transform: scale(1);
+        opacity: 0.8;
+      }
+      100% {
+        transform: scale(2.5);
+        opacity: 0;
+      }
+    }
+/* end */
+
+/* header Slider Service */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+/* header Slider Service End */
+
+/* Custom Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2DA64F;
+  border-radius: 10px;
+  border: 2px solid #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #1e7a3e;
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-color: #2DA64F #f1f5f9;
+  scrollbar-width: thin;
+}
+
+/* Prevent horizontal scrollbar on body */
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+/* Custom scrollbar classes for Tailwind */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #2DA64F;
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #1e7a3e;
+}
+
+.scrollbar-thumb-green-600::-webkit-scrollbar-thumb {
+  background: #2DA64F !important;
+}
+
+.scrollbar-track-gray-200::-webkit-scrollbar-track {
+  background: #e5e7eb !important;
+  border-radius: 10px;
+}
+
+.scrollbar-track-gray-100::-webkit-scrollbar-track {
+  background: #f3f4f6 !important;
+  border-radius: 10px;
+}
+
+/* Auto Slider Enhancements */
+.slider-container {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overflow-x: hidden !important;
+  width: 100%;
+}
+
+.slider-container.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.slider-container.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.slider-item {
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+
+.slider-item:hover {
+  transform: translateY(-2px);
+}
+
+/* Mobile touch improvements */
+@media (max-width: 768px) {
+  .slider-container {
+    scroll-snap-type: x mandatory;
+  }
+
+  .slider-item {
+    scroll-snap-align: start;
+  }
+}
+
+/* Pause animation on reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .slider-container {
+    scroll-behavior: auto;
+  }
+
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* MainCard Component Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.bubble {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-floatSlow {
+  animation: floatSlow 4s ease-in-out infinite;
+}
+
+.animate-fadeUp {
+  animation: fadeUp 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+/* homepage 60 second css */
+  @layer utilities {
+  .animate-fade-up {
+    animation: fadeUp 0.8s ease-out forwards;
+    opacity: 0;
+  }
+
+    .delay-100 { animation-delay: 0.1s }
+    .delay-200 { animation-delay: 0.2s }
+    .delay-300 { animation-delay: 0.3s }
+    .delay-400 { animation-delay: 0.4s }
+    .delay-500 { animation-delay: 0.5s }
+
+    .animate-draw path,
+    .animate-draw polyline {
+      stroke-dasharray: 300;
+      stroke-dashoffset: 300;
+      animation: drawLine 1.2s ease-out forwards;
+    }
+  }
+
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes drawLine {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+
+/* end */
+ 
+
+/* data status  */
+
+@keyframes slideFade {
+      from {
+        opacity: 0;
+        transform: translateX(-40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes pulseRing {
+      0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.6); }
+      70% { box-shadow: 0 0 0 15px rgba(255,255,255,0); }
+      100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+    }
+
+    .animate-slideFade {
+      animation: slideFade 1s ease forwards;
+    }
+
+    .animate-pulseRing {
+      animation: pulseRing 1.8s infinite;
+    }

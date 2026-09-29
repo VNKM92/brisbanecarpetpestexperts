@@ -1,0 +1,28 @@
+{
+  "categories": [
+    {
+      "name": "Carpet Cleaning",
+      "items": [
+        {
+          "title": "Which Cleaning Plan Fits My Needs?",
+          "content": "Choosing the right cleaning plan ensures that your tile and grout receive the appropriate level of care. A tailored plan addresses specific needs, such as heavy staining or regular maintenance, optimizing results and extending the life of your tiles. It’s essential for achieving the best value and effectiveness."
+        },{
+          "title": "Am I Required to Sign a Long-Term Agreement?",
+          "content": "Many tile and grout cleaning services offer flexible options without long-term commitments. This allows you to opt for one-time cleanings or periodic maintenance without being locked into a lengthy contract. It provides the freedom to adjust services based on your needs and satisfaction."
+        },
+        {
+          "title": "What Are the Accepted Payment Options?",
+          "content": "Convenient payment options enhance the ease of managing your cleaning services. Most providers accept various methods, including credit/debit cards, online payments, and direct bank transfers. This flexibility ensures that you can choose the payment method that best suits your preferences and budget."
+        }
+        
+      ]
+    },
+    {
+      "name": "Pest Control",
+      "items": [
+        
+         
+      ]
+    }
+  ]
+}

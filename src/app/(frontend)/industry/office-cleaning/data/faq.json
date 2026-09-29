@@ -1,0 +1,28 @@
+{
+  "categories": [
+    {
+      "name": "Carpet Cleaning",
+      "items": [
+        {
+          "title": "Which Cleaning Plan Fits My Needs?",
+          "content": "Choosing the right cleaning plan ensures that your office receives the most effective and tailored cleaning services. Benefits include a customized approach to meet specific needs, cost-efficiency, and enhanced cleanliness. Selecting the appropriate plan helps maintain a hygienic work environment and boosts employee productivity."
+        },{
+          "title": "Am I Required to Sign a Long-Term Agreement?",
+          "content": "Flexible, no-long-term agreements provide you with freedom and control over your cleaning services, allowing you to adjust or cancel as needed without being tied into a lengthy contract."
+        },
+        {
+          "title": "What Are the Accepted Payment Options?",
+          "content": "A variety of payment options, including credit cards, online transfers, and cash, make it convenient for you to settle your cleaning bills with ease and flexibility."
+        }
+        
+      ]
+    },
+    {
+      "name": "Pest Control",
+      "items": [
+        
+         
+      ]
+    }
+  ]
+}

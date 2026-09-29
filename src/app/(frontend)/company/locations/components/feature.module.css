@@ -1,0 +1,55 @@
+/* Color tokens and utility classes used by FeatureCard.tsx
+   We export global class names so the JSX can use them directly
+*/
+
+/* Token colors (shaido) */
+
+
+/* Make classes available globally so JSX can reference them as regular class names */
+:global(.text-shaido-dark) {
+  color: var(--shaido-dark) !important;
+}
+:global(.bg-shaido-light) {
+  background-color: var(--shaido-light) !important;
+}
+:global(.border-shaido-light) {
+  border-color: var(--shaido-border) !important;
+}
+:global(.text-shaido-accent) {
+  color: var(--shaido-accent) !important;
+}
+
+/* Fade-in animation used by the feature cards. Inline animationDelay is used
+   in the component to stagger entrance. The class only defines the keyframes
+   and default timing. */
+:global(.animate-fadeIn) {
+  opacity: 0;
+  transform: translateY(8px);
+  animation-name: fadeInUp;
+  animation-duration: 600ms;
+  animation-fill-mode: forwards;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Utility for subtle card hover glow */
+:global(.card-glow) {
+  box-shadow: 0 8px 24px rgba(15,23,42,0.06), 0 2px 6px rgba(15,23,42,0.04);
+}
+
+/* Small responsive tweaks for the icon wrapper */
+:global(.feature-icon-img) {
+  width: 2.5rem; /* 40px */
+  height: 2.5rem;
+}
+

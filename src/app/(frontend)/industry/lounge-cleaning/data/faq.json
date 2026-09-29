@@ -1,0 +1,28 @@
+{
+  "categories": [
+    {
+      "name": "Carpet Cleaning",
+      "items": [
+        {
+          "title": "Which Cleaning Plan Fits My Needs?",
+          "content": "Finding the right cleaning plan ensures that your lounge cleaning meets your specific needs, whether it's a deep clean, regular maintenance, or special treatments. Tailoring the plan to your requirements not only enhances the cleanliness and appearance of your lounge but also optimizes cost-effectiveness and convenience for you."
+        },{
+          "title": "Am I Required to Sign a Long-Term Agreement?",
+          "content": "Many cleaning services offer flexibility without the need for long-term commitments. Opting for a service that doesn't require a long-term agreement allows you to enjoy professional lounge cleaning on your terms, giving you the freedom to adjust or discontinue services based on your evolving needs and satisfaction."
+        },
+        {
+          "title": "What Are the Accepted Payment Options?",
+          "content": "Understanding the accepted payment options helps you choose a cleaning service that aligns with your financial preferences. Whether it's credit cards, bank transfers, or online payment platforms, having multiple payment methods available ensures a hassle-free and secure transaction process, adding convenience to your lounge cleaning experience."
+        }
+        
+      ]
+    },
+    {
+      "name": "Pest Control",
+      "items": [
+        
+         
+      ]
+    }
+  ]
+}

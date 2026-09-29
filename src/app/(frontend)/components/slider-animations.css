@@ -1,0 +1,229 @@
+/* Full Width Slider Animations and Effects */
+
+/* Smooth transitions */
+.slider-container {
+  perspective: 1000px;
+}
+
+.slider-image {
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slider-image:hover {
+  transform: scale(1.02);
+}
+
+/* Text animations */
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(59, 130, 246, 0.8);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+/* Gradient overlays */
+.overlay-gradient {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.7) 0%, rgba(30, 41, 59, 0.7) 100%);
+}
+
+.overlay-gradient-dark {
+  background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.5) 100%);
+}
+
+/* Badge styling */
+.badge-animated {
+  animation: slideInFromLeft 0.8s ease-out 0.2s both;
+}
+
+/* Title styling */
+.title-animated {
+  animation: slideInFromLeft 0.8s ease-out 0.3s both;
+}
+
+/* Description styling */
+.description-animated {
+  animation: fadeInUp 0.8s ease-out 0.4s both;
+}
+
+/* Button styling */
+.button-primary {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.button-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  transition: left 0.5s ease;
+}
+
+.button-primary:hover::before {
+  left: 100%;
+}
+
+/* Navigation buttons */
+.nav-button {
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-button:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.1);
+}
+
+.nav-button:active {
+  transform: scale(0.95);
+}
+
+/* Dots/indicators */
+.dot-indicator {
+  transition: all 0.3s ease;
+  border-radius: 9999px;
+}
+
+.dot-indicator.active {
+  background-color: white;
+  width: 48px;
+}
+
+.dot-indicator:not(.active) {
+  background-color: rgba(255, 255, 255, 0.4);
+  width: 12px;
+  height: 12px;
+}
+
+.dot-indicator:not(.active):hover {
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .slider-container h1 {
+    font-size: 2.25rem;
+  }
+
+  .slider-container p {
+    font-size: 1rem;
+  }
+
+  .nav-button {
+    padding: 0.5rem;
+  }
+
+  .dot-indicator.active {
+    width: 32px;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .slider-container h1 {
+    font-size: 3rem;
+  }
+
+  .slider-container p {
+    font-size: 1.125rem;
+  }
+}
+
+@media (min-width: 1025px) {
+  .slider-container h1 {
+    font-size: 3.75rem;
+  }
+
+  .slider-container p {
+    font-size: 1.25rem;
+  }
+}
+
+/* Parallax effect */
+.parallax-bg {
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Dark theme support */
+@media (prefers-color-scheme: dark) {
+  .overlay-gradient {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.8) 100%);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Accessibility - High contrast mode */
+@media (prefers-contrast: more) {
+  .overlay-gradient {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(20, 20, 20, 0.9) 100%);
+  }
+
+  .nav-button {
+    border-color: rgba(255, 255, 255, 0.8);
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "categories": [
+    {
+      "name": "Carpet Cleaning",
+      "items": [
+        {
+          "title": "Which Cleaning Plan Fits My Needs?",
+          "content": "Selecting the right cleaning plan for your age care facility depends on various factors, including the size of the facility, the number of residents, and the specific cleaning needs. Here are some considerations to help you determine which plan is best for you: Frequency of Cleaning: Determine how often you need cleaning services. Facilities with high traffic areas or specific cleanliness requirements might benefit from more frequent cleanings, such as daily or bi-weekly, while others might find weekly services sufficient. Scope of Services: Assess the range of cleaning tasks required. Our plans can be customized to include everything from basic cleaning and disinfecting to more comprehensive services like carpet cleaning and pest control. Choose a plan that covers all necessary tasks to ensure a thorough clean. Budget: Consider your budget and the value each plan offers. We provide cost-effective options that align with your financial constraints while delivering high-quality cleaning services. Facility Size and Layout: The size and layout of your facility can impact the cleaning requirements. Larger facilities or those with complex layouts might require more time and resources for cleaning, so choose a plan that accommodates these needs. Special Requirements: If your facility has any special requirements, such as specific sanitation protocols or eco-friendly cleaning preferences, discuss these with us to ensure the plan you choose meets all your needs."
+        },{
+          "title": "Am I Required to Sign a Long-Term Agreement?",
+          "content": "No, you do not have to commit to a long-term contract with Brisbane Carpet and Pest Control. We offer flexible service agreements that cater to your needs and preferences. Whether you require short-term services or a more extended arrangement, we can accommodate your requirements without binding you to a fixed contract. This flexibility allows you to adjust the frequency and scope of services as needed, providing you with the freedom to change or cancel services based on your evolving needs."
+        },
+        {
+          "title": "What Are the Accepted Payment Options?",
+          "content": "We strive to make payment as convenient as possible for our clients. At Brisbane Carpet and Pest Control, we offer a range of payment methods to suit your preferences:\n\nCredit/Debit Cards: We accept major credit and debit cards for easy and secure transactions.\n\nBank Transfers: You can opt for direct bank transfers if you prefer to manage payments through your banking system.\n\nOnline Payment Platforms: We also support various online payment platforms, providing a seamless and efficient payment experience.\n\nInvoicing: For ongoing services or larger contracts, we offer invoicing options, allowing you to manage payments on a scheduled basis.\n\nOur goal is to provide you with a hassle-free experience, from selecting the right cleaning plan to managing payments. If you have any specific preferences or questions regarding payment methods, please feel free to reach out to our team for assistance."
+        }
+        
+      ]
+    },
+    {
+      "name": "Pest Control",
+      "items": [
+        
+         
+      ]
+    }
+  ]
+}

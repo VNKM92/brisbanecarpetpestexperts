@@ -1,0 +1,8 @@
+/* small helper animation keyframes (kept minimal) */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.hero-card.animate-in {
+  animation: fadeUp 600ms ease forwards;
+}
