@@ -2,17 +2,67 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
-import { getAllBlogPosts, getBlogPostsByCategory, categories } from "./data";
+import { useState, useEffect } from "react";
+import { getAllBlogPosts, categories as fallbackCategories } from "./data";
 
 // Note: SEO metadata is managed in parent layout
 
 export default function BlogPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const allPosts = getAllBlogPosts();
-  const displayedPosts = selectedCategory
-    ? getBlogPostsByCategory(selectedCategory)
-    : allPosts;
+  const [searchQuery, setSearchQuery] = useState("");
+  const [posts, setPosts] = useState<any[]>([]);
+  const [catList, setCatList] = useState<string[]>(fallbackCategories);
+
+  useEffect(() => {
+    fetch("/api/blogs")
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.success && json.data) {
+          if (json.data.blogs && json.data.blogs.length > 0) {
+            setPosts(
+              json.data.blogs.map((b: any) => ({
+                id: b.id,
+                slug: b.slug,
+                title: b.title,
+                excerpt: b.excerpt,
+                content: b.content,
+                author: b.author,
+                category: b.category ? [b.category.name] : ["General"],
+                date: new Date(b.publishedAt || b.createdAt).toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                }),
+                image: b.featuredImg || "/assets/blog/pages/carpet-and-pest-cleaning.jpg",
+                readTime: b.readTime || 5,
+              }))
+            );
+          } else {
+            setPosts(getAllBlogPosts());
+          }
+
+          if (json.data.categories && json.data.categories.length > 0) {
+            setCatList(json.data.categories.map((c: any) => c.name));
+          }
+        } else {
+          setPosts(getAllBlogPosts());
+        }
+      })
+      .catch(() => {
+        setPosts(getAllBlogPosts());
+      });
+  }, []);
+
+  const allPosts = posts.length > 0 ? posts : getAllBlogPosts();
+
+  const displayedPosts = allPosts.filter((post) => {
+    const matchesCat = selectedCategory ? post.category?.includes(selectedCategory) : true;
+    const matchesSearch = searchQuery
+      ? post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        post.excerpt?.toLowerCase().includes(searchQuery.toLowerCase())
+      : true;
+    return matchesCat && matchesSearch;
+  });
 
   return (
     <>
@@ -136,7 +186,9 @@ export default function BlogPage() {
                 <div>
                   <input
                     type="text"
-                    placeholder="Search..."
+                    placeholder="Search articles..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full border border-gray-300 rounded-full px-4 py-2 focus:ring-2 focus:ring-orange-400 focus:outline-none"
                   />
                 </div>
@@ -183,8 +235,8 @@ export default function BlogPage() {
                     >
                       All Posts ({allPosts.length})
                     </li>
-                    {categories.map((cat) => {
-                      const count = getBlogPostsByCategory(cat).length;
+                    {catList.map((cat) => {
+                      const count = allPosts.filter((p) => p.category?.includes(cat)).length;
                       return count > 0 ? (
                         <li
                           key={cat}

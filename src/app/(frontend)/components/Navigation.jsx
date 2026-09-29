@@ -318,9 +318,9 @@ export default function Navbar() {
 
           
 
-          <button className="bg-orange-500 text-white px-4 py-2 rounded-full hover:bg-orange-600 transition">
+          <Link href="/request-estimate" className="bg-orange-500 text-white px-5 py-2 rounded-full hover:bg-orange-600 transition font-medium text-sm shadow-sm inline-block">
             Request Service
-          </button>
+          </Link>
         </div>
 
         {/* Mobile toggle */}
@@ -442,9 +442,13 @@ export default function Navbar() {
               )}
             </div>
           ))}
-          <button className="m-4 w-[calc(100%-2rem)] bg-orange-500 text-white px-4 py-2 rounded-full">
+          <Link
+            href="/request-estimate"
+            onClick={() => setMenuOpen(false)}
+            className="m-4 block text-center bg-orange-500 hover:bg-orange-600 text-white px-4 py-2.5 rounded-full font-medium shadow-sm transition"
+          >
             Request Service
-          </button>
+          </Link>
         </div>
       )}
     </header>

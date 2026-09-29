@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import AOS from "aos";
 import { useForm } from "react-hook-form";
 
@@ -18,20 +18,43 @@ interface ContactFormData {
   message: string;
 }
 
-export default function Home() {
+export default function ContactPage() {
   useEffect(() => {
     AOS.init({ duration: 900 });
   }, []);
 
+  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [serverError, setServerError] = useState("");
+
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<ContactFormData>();
 
-  const onSubmit = (data: ContactFormData) => {
-    console.log(data);
-    alert("Form submitted!");
+  const onSubmit = async (data: ContactFormData) => {
+    setSubmitting(true);
+    setServerError("");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setSubmitted(true);
+        reset();
+      } else {
+        setServerError(json.message || "Failed to submit enquiry. Please try again.");
+      }
+    } catch (err) {
+      setServerError("Network error. Please try again or call us directly.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -55,6 +78,19 @@ export default function Home() {
             <h2 className="text-center font-bold text-3xl md:text-4xl mb-8">
               Book Your Clean Today
             </h2>
+
+            {submitted && (
+              <div className="mb-6 p-4 rounded-xl bg-green-50 border border-green-300 text-green-800 text-center">
+                <p className="font-bold text-base">Thank you! Enquiry Received.</p>
+                <p className="text-sm mt-1">Our cleaning team will call you within business hours.</p>
+              </div>
+            )}
+
+            {serverError && (
+              <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-300 text-red-800 text-center text-sm">
+                {serverError}
+              </div>
+            )}
 
             <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
               {/* Input Row */}

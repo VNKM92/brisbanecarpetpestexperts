@@ -1,30 +1,44 @@
-import { NextRequest } from 'next/server';
-import { successResponse, apiHandler, handleCors } from '@/lib/api-handlers';
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
-export const GET = apiHandler(async (request: NextRequest) => {
-  // Handle CORS
-  const corsResponse = handleCors(request);
-  if (corsResponse) return corsResponse;
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const categorySlug = searchParams.get('category');
+    const featuredOnly = searchParams.get('featured') === 'true';
 
-  // Example endpoint - replace with actual data
-  const services = [
-    {
-      id: '1',
-      name: 'Residential Cleaning',
-      description: 'Professional cleaning for your home',
-      category: 'Residential',
-      price: 99,
-      duration: '2-3 hours',
-    },
-    {
-      id: '2',
-      name: 'Commercial Cleaning',
-      description: 'Cleaning solutions for businesses',
-      category: 'Commercial',
-      price: 199,
-      duration: '4-5 hours',
-    },
-  ];
+    const where: any = { isActive: true };
+    if (categorySlug) {
+      where.category = { slug: categorySlug };
+    }
+    if (featuredOnly) {
+      where.isFeatured = true;
+    }
 
-  return successResponse(services, 'Services retrieved successfully');
-});
+    const services = await prisma.service.findMany({
+      where,
+      include: {
+        category: true,
+      },
+      orderBy: { order: 'asc' },
+    });
+
+    const categories = await prisma.serviceCategory.findMany({
+      orderBy: { order: 'asc' },
+    });
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        services,
+        categories,
+      },
+    });
+  } catch (error: any) {
+    console.error('Error fetching services:', error);
+    return NextResponse.json(
+      { success: false, message: 'Failed to fetch services' },
+      { status: 500 }
+    );
+  }
+}

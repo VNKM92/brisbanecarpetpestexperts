@@ -3,7 +3,7 @@
 import Image from "next/image"
 import { useEffect, useState } from "react"
 
-const testimonials = [
+const defaultTestimonials = [
   {
     text:
       "Great response time, staff was on time and got the job done pretty quickly. House looked great when they finished.",
@@ -16,17 +16,36 @@ const testimonials = [
     name: "Annie Bennedict",
     avatar: "/testimonial/user1.jpg",
   },
-]
+];
 
 export default function Testimonials() {
-  const [index, setIndex] = useState(0)
+  const [items, setItems] = useState(defaultTestimonials);
+  const [index, setIndex] = useState(0);
 
   useEffect(() => {
+    fetch("/api/testimonials")
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.success && json.data && json.data.length > 0) {
+          setItems(
+            json.data.map((t: any) => ({
+              text: t.review,
+              name: t.clientName,
+              avatar: t.avatar || "/testimonial/user1.jpg",
+            }))
+          );
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (items.length === 0) return;
     const interval = setInterval(() => {
-      setIndex((prev) => (prev + 1) % testimonials.length)
-    }, 4000)
-    return () => clearInterval(interval)
-  }, [])
+      setIndex((prev) => (prev + 1) % items.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [items]);
 
   return (
     <section className="relative max-w-7xl mx-auto bg-[#43934a] rounded-[30px] overflow-hidden">
@@ -66,7 +85,7 @@ export default function Testimonials() {
               className="flex transition-transform duration-700"
               style={{ transform: `translateX(-${index * 100}%)` }}
             >
-              {testimonials.map((item, i) => (
+              {items.map((item, i) => (
                 <div key={i} className="min-w-full pr-4">
                   <div className="bg-white text-gray-800 rounded-2xl p-6 shadow-lg">
                     <span className="text-orange-500 text-3xl font-bold">“</span>
@@ -92,7 +111,7 @@ export default function Testimonials() {
 
             {/* Dots */}
             <div className="flex gap-2 mt-6">
-              {testimonials.map((_, i) => (
+              {items.map((_, i) => (
                 <span
                   key={i}
                   className={`w-2 h-2 rounded-full ${

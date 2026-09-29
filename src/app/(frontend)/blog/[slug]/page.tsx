@@ -1,33 +1,138 @@
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import {
-  getBlogPostBySlug,
-  getAllBlogPosts,
-  getBlogPostsByCategory,
-  categories,
-} from "../data";
+import { Metadata } from "next";
+import { prisma } from "@/lib/prisma";
+import { getBlogPostBySlug, getAllBlogPosts } from "../data";
+import BlogCommentForm from "../components/BlogCommentForm";
 
-export default async function BlogPostPage({
-  params,
-}: {
+interface Props {
   params: Promise<{ slug: string }>;
-}) {
-  const { slug } = await params;
-  const post = getBlogPostBySlug(slug);
-  const allPosts = getAllBlogPosts();
+}
 
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  let blog = null;
+  try {
+    blog = await prisma.blog.findUnique({
+      where: { slug },
+      include: { category: true },
+    });
+  } catch (e) {}
+
+  const post = blog || getBlogPostBySlug(slug);
   if (!post) {
+    return { title: "Blog Article Not Found | Brisbane Carpet & Pest Experts" };
+  }
+
+  const title = (post as any).metaTitle || post.title;
+  const description = (post as any).metaDesc || post.excerpt || "";
+  const image = (post as any).featuredImg || (post as any).image || "/images/og-image.jpg";
+
+  return {
+    title: `${title} | Brisbane Carpet & Pest Experts`,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: [{ url: image }],
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
+  };
+}
+
+export default async function BlogPostPage({ params }: Props) {
+  const { slug } = await params;
+
+  let dbBlog = null;
+  let allBlogs: any[] = [];
+  try {
+    dbBlog = await prisma.blog.findUnique({
+      where: { slug },
+      include: { category: true },
+    });
+    allBlogs = await prisma.blog.findMany({
+      where: { status: "PUBLISHED" },
+      include: { category: true },
+      orderBy: { publishedAt: "desc" },
+      take: 6,
+    });
+  } catch (e) {}
+
+  const fallbackPost = getBlogPostBySlug(slug);
+
+  if (!dbBlog && !fallbackPost) {
     notFound();
   }
 
-  // Get related posts (same category, different post)
-  const relatedPosts = getBlogPostsByCategory(post.category[0])
-    .filter((p) => p.id !== post.id)
-    .slice(0, 3);
+  const post = dbBlog
+    ? {
+        id: dbBlog.id,
+        slug: dbBlog.slug,
+        title: dbBlog.title,
+        excerpt: dbBlog.excerpt,
+        content: dbBlog.content,
+        author: dbBlog.author,
+        category: dbBlog.category ? [dbBlog.category.name] : ["Cleaning"],
+        date: new Date(dbBlog.publishedAt || dbBlog.createdAt).toLocaleDateString("en-US", {
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+        }),
+        image: dbBlog.featuredImg || "/assets/blog/pages/carpet-and-pest-cleaning.jpg",
+        readTime: dbBlog.readTime || 5,
+      }
+    : fallbackPost!;
+
+  const sidePosts = allBlogs.length > 0
+    ? allBlogs.map((b) => ({
+        id: b.id,
+        slug: b.slug,
+        title: b.title,
+        date: new Date(b.publishedAt || b.createdAt).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }),
+        image: b.featuredImg || "/assets/blog/pages/carpet-and-pest-cleaning.jpg",
+      }))
+    : getAllBlogPosts().slice(0, 5);
+
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": post.title,
+    "description": post.excerpt,
+    "image": post.image,
+    "author": {
+      "@type": "Person",
+      "name": post.author,
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Brisbane Carpet & Pest Experts",
+      "logo": {
+        "@type": "ImageObject",
+        "url": `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/logo.png`,
+      },
+    },
+    "datePublished": post.date,
+  };
 
   return (
     <>
+      {/* Schema.org Article Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+
       {/* Banner Section */}
       <div className="relative w-full h-[40vh] md:h-[50vh] lg:h-[60vh] bg-cover bg-center bg-no-repeat">
         <Image
@@ -62,9 +167,7 @@ export default async function BlogPostPage({
       <div className="max-w-7xl mx-auto px-4 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           {/* LEFT COLUMN (Content) */}
-          <div className="lg:col-span-2" data-aos="fade-right">
-
-            
+          <div className="lg:col-span-2">
             {/* Article Metadata */}
             <div className="flex flex-wrap items-center text-gray-600 text-sm gap-6 pb-6 border-b">
               <span>📅 {post.date}</span>
@@ -73,11 +176,10 @@ export default async function BlogPostPage({
                 By {post.author}
               </span>
             </div>
-            
 
             {/* Article Body */}
             <div className="mt-8 prose prose-lg max-w-none">
-              {post.content.split("\n\n").map((paragraph, idx) => {
+              {post.content.split("\n\n").map((paragraph: string, idx: number) => {
                 if (paragraph.startsWith("##")) {
                   return (
                     <h2
@@ -102,10 +204,7 @@ export default async function BlogPostPage({
                   return (
                     <ul key={idx} className="list-disc list-inside space-y-2 ml-4">
                       {paragraph.split("\n").map((item, i) => (
-                        <li
-                          key={i}
-                          className="text-gray-700 leading-relaxed"
-                        >
+                        <li key={i} className="text-gray-700 leading-relaxed">
                           {item.replace("-", "").trim()}
                         </li>
                       ))}
@@ -114,10 +213,7 @@ export default async function BlogPostPage({
                 }
                 if (paragraph.trim()) {
                   return (
-                    <p
-                      key={idx}
-                      className="text-gray-700 leading-relaxed mb-4"
-                    >
+                    <p key={idx} className="text-gray-700 leading-relaxed mb-4">
                       {paragraph}
                     </p>
                   );
@@ -141,128 +237,20 @@ export default async function BlogPostPage({
               <button className="p-2 hover:text-orange-500 hover:bg-orange-50 rounded-full transition">
                 📧
               </button>
-
-
-
-
             </div>
-              {/* comment data start */}
-                {/* <!-- Comments Heading --> */}
-            <h2 className="text-2xl font-bold mt-10 mb-6">
-                3 thoughts on “How to Clean All Types of Cutting Boards”
-            </h2>
 
-            {/* <!-- COMMENT CARD --> */}
-                <div className="space-y-10">
-
-                    {/* <!-- Comment 1 --> */}
-                    <div className="flex gap-4">
-                        <div className="w-12 h-12 bg-gray-300 rounded-full"></div>
-                        <div>
-                            <p className="font-semibold">Geovani Considine</p>
-                            <p className="text-xs text-gray-500">January 25, 2018 at 9:35 am</p>
-                            <p className="text-sm mt-2">
-                                Doloribus veniam qui quisquam. Voluptatem porro in magni.
-                            </p>
-                            <button className="text-orange-600 text-sm mt-2">Reply</button>
-                        </div>
-                    </div>
-
-                    {/* <!-- Comment 2 --> */}
-                    <div className="flex gap-4">
-                        <div className="w-12 h-12 bg-gray-300 rounded-full"></div>
-                        <div>
-                            <p className="font-semibold">Ms. Rita Thompson</p>
-                            <p className="text-xs text-gray-500">January 25, 2018 at 9:35 am</p>
-                            <p className="text-sm mt-2">
-                                Quaerat et deserunt tempore laboriosam...
-                            </p>
-                            <button className="text-orange-600 text-sm mt-2">Reply</button>
-                        </div>
-                    </div>
-
-                    {/* <!-- Comment 3 --> */}
-                    <div className="flex gap-4">
-                        <div className="w-12 h-12 bg-gray-300 rounded-full"></div>
-                        <div>
-                            <p className="font-semibold">Grant Hagenes</p>
-                            <p className="text-xs text-gray-500">January 25, 2018 at 9:35 am</p>
-                            <p className="text-sm mt-2">
-                                In aliquam rerum sunt eligendi...
-                            </p>
-                            <button className="text-orange-600 text-sm mt-2">Reply</button>
-                        </div>
-                    </div>
-
-                </div>
-              {/* comment data end */}
-              {/* work on form and data */}
-                <h3 className="text-xl font-bold mt-12 mb-4">Leave a Reply</h3>
-
-                    <form className="space-y-4">
-                        <div>
-                            <label className="text-sm">Comment *</label>
-                            <textarea className="w-full border rounded-md p-3 h-32"></textarea>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label className="text-sm">Name *</label>
-                                <input type="text" className="w-full border rounded-md p-3" />
-                            </div>
-                            <div>
-                                <label className="text-sm">Email *</label>
-                                <input type="email" className="w-full border rounded-md p-3" />
-                            </div>
-                        </div>
-
-                        <button className="bg-orange-600 text-white px-6 py-2 rounded-md">
-                            Post Comment
-                        </button>
-                    </form>
-              {/* end */}
-
-            {/* Related Posts */}
-            {relatedPosts.length > 0 && (
-              <div className="mt-16 pt-12 border-t">
-                <h3 className="text-2xl font-bold mb-8">Related Posts</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {relatedPosts.map((relatedPost) => (
-                    <Link
-                      key={relatedPost.id}
-                      href={`/blog/${relatedPost.slug}`}
-                      className="group"
-                    >
-                      <div className="w-full h-40 relative rounded-lg overflow-hidden mb-4">
-                        <Image
-                          src={relatedPost.image}
-                          alt={relatedPost.title}
-                          fill
-                          className="object-cover group-hover:scale-110 transition duration-300"
-                        />
-                      </div>
-                      <p className="text-sm text-gray-500 mb-1">
-                        {relatedPost.date}
-                      </p>
-                      <h4 className="font-semibold text-gray-900 group-hover:text-orange-500 transition line-clamp-2">
-                        {relatedPost.title}
-                      </h4>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Leave a Reply */}
+            <BlogCommentForm articleTitle={post.title} />
           </div>
           {/* END LEFT COLUMN */}
 
           {/* RIGHT SIDEBAR */}
-          <div className="space-y-10" data-aos="fade-left">
+          <div className="space-y-10">
             {/* Recent Posts */}
             <div>
               <h2 className="font-bold text-lg mb-4">Recent Posts</h2>
-
               <div className="space-y-4">
-                {allPosts.slice(0, 5).map((p) => (
+                {sidePosts.map((p) => (
                   <Link
                     key={p.id}
                     href={`/blog/${p.slug}`}
@@ -285,28 +273,6 @@ export default async function BlogPostPage({
                   </Link>
                 ))}
               </div>
-            </div>
-
-            {/* Categories */}
-            <div>
-              <h2 className="font-bold text-lg mb-4">Categories</h2>
-              <ul className="space-y-2 text-gray-600 text-sm">
-                {categories.map((cat) => {
-                  const count = getAllBlogPosts().filter((p) =>
-                    p.category.includes(cat)
-                  ).length;
-                  return count > 0 ? (
-                    <li key={cat}>
-                      <Link
-                        href={`/blog?category=${cat}`}
-                        className="hover:text-orange-500 transition"
-                      >
-                        {cat} ({count})
-                      </Link>
-                    </li>
-                  ) : null;
-                })}
-              </ul>
             </div>
 
             {/* Navigation */}

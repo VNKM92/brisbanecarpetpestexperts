@@ -6,7 +6,49 @@ import { useState } from "react";
 // import { ChevronDown } from "lucide-react"; // added import
 
 export default function HomeAboutCard() {
-   const [faqOpen, setFaqOpen] = useState(false);
+  const [faqOpen, setFaqOpen] = useState(false);
+  const [contactName, setContactName] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  const [contactMessage, setContactMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [formSuccess, setFormSuccess] = useState<string | null>(null);
+  const [formError, setFormError] = useState("");
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setFormError("");
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: contactName,
+          phone: contactPhone,
+          email: contactEmail,
+          message: contactMessage,
+          service: "Home Cleaning",
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setFormSuccess(data.message || "Your enquiry has been received!");
+        setContactName("");
+        setContactPhone("");
+        setContactEmail("");
+        setContactMessage("");
+      } else {
+        setFormError(data.message || "Failed to send message.");
+      }
+    } catch (err) {
+      setFormError("Network error. Please try again or call 0434 061 188.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const features = [
     {
@@ -175,16 +217,67 @@ export default function HomeAboutCard() {
                     <div className="bg-white rounded-2xl shadow-lg p-10">
                       <h3 className="text-orange-500 italic font-semibold">Get in touch</h3>
                       <h2 className="text-3xl font-bold mb-4">Book Your Clean Today</h2>
-                      <form className="space-y-4">
-                        <textarea
-                          className="w-full border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-green-600"
-                          placeholder="Enter your message..."
-                          rows={4}
-                        />
-                        <button className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-full font-semibold transition">
-                          Send
-                        </button>
-                      </form>
+                      {formSuccess ? (
+                        <div className="p-6 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800">
+                          <p className="font-bold text-lg">Thank You!</p>
+                          <p className="text-sm mt-1">{formSuccess}</p>
+                          <button
+                            type="button"
+                            onClick={() => setFormSuccess(null)}
+                            className="mt-4 text-xs font-semibold text-emerald-700 underline"
+                          >
+                            Send another message
+                          </button>
+                        </div>
+                      ) : (
+                        <form onSubmit={handleFormSubmit} className="space-y-4">
+                          {formError && (
+                            <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+                              {formError}
+                            </div>
+                          )}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input
+                              type="text"
+                              required
+                              placeholder="Your Name *"
+                              value={contactName}
+                              onChange={(e) => setContactName(e.target.value)}
+                              className="w-full border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-green-600"
+                            />
+                            <input
+                              type="tel"
+                              required
+                              placeholder="Your Phone *"
+                              value={contactPhone}
+                              onChange={(e) => setContactPhone(e.target.value)}
+                              className="w-full border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-green-600"
+                            />
+                          </div>
+                          <input
+                            type="email"
+                            required
+                            placeholder="Your Email Address *"
+                            value={contactEmail}
+                            onChange={(e) => setContactEmail(e.target.value)}
+                            className="w-full border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-green-600"
+                          />
+                          <textarea
+                            className="w-full border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-green-600"
+                            placeholder="Enter your cleaning requirements or preferred date..."
+                            rows={3}
+                            value={contactMessage}
+                            onChange={(e) => setContactMessage(e.target.value)}
+                          />
+                          <button
+                            type="submit"
+                            disabled={submitting}
+                            className="bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white px-8 py-3 rounded-full font-semibold transition shadow-md"
+                          >
+                            {submitting ? "Sending Request..." : "Send Request →"}
+                          </button>
+                        </form>
+                      )}
                       <p className="text-gray-600 text-sm mt-6">
                         All you have to do is click on the Book Now button, enter your
                         relevant details (name, address, phone number, your home size, and

@@ -1,30 +1,42 @@
 import type { Metadata } from "next";
+import { Inter, Roboto_Mono } from "next/font/google";
+import "./(frontend)/globals.css";
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+});
+
+const robotoMono = Roboto_Mono({
+  variable: "--font-roboto-mono",
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
   title: {
-    default: "Brisbane - Professional Cleaning Services Brisbane",
-    template: "%s | Brisbane",
+    default: "Brisbane Carpet & Pest Experts | Professional Cleaning Services Brisbane",
+    template: "%s | Brisbane Carpet & Pest Experts",
   },
-  description: "Professional cleaning services in Brisbane including bond cleaning, end-of-lease, pest control, and more. Experienced team, satisfaction guaranteed.",
-  keywords: ["cleaning services", "bond cleaning", "Brisbane", "end-of-lease", "professional cleaning"],
+  description: "Professional cleaning services in Brisbane including bond cleaning, end-of-lease, carpet cleaning, pest control, and more. Experienced team, satisfaction guaranteed.",
+  keywords: ["cleaning services", "bond cleaning", "Brisbane", "end-of-lease", "carpet cleaning", "pest control", "commercial cleaning"],
   openGraph: {
     type: "website",
     locale: "en_AU",
     url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
-    siteName: "Brisbane",
+    siteName: "Brisbane Carpet & Pest Experts",
     images: [
       {
         url: "/images/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Brisbane Professional Cleaning Services",
+        alt: "Brisbane Carpet & Pest Experts",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    creator: "@Brisbane",
+    creator: "@brisbanecarpet",
     images: ["/images/og-image.jpg"],
   },
   robots: {
@@ -44,5 +56,11 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return (
+    <html lang="en" className={`${inter.variable} ${robotoMono.variable}`}>
+      <body className="font-sans antialiased text-slate-900 bg-white selection:bg-emerald-500 selection:text-white">
+        {children}
+      </body>
+    </html>
+  );
 }
