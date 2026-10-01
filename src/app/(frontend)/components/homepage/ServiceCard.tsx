@@ -1,96 +1,101 @@
 "use client";
 
 import Image from "next/image";
-import { motion } from "framer-motion";
-import { fadeUp } from "./motionVariants";
+import Link from "next/link";
+import { Check, ArrowRight, Shield, Clock, Sparkles } from "lucide-react";
 
 export default function ServiceCard() {
   return (
-    <section className="w-full relative -mt-15">
-      <div className="max-w-7xl mx-auto bg-white rounded-[50px] px-6 md:px-16 py-16 shadow-lg">
-        {/* HEADER */}
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="text-center"
-        >
-          <h2 className="text-3xl md:text-5xl font-semibold">
-            Popular Services by Brisbane
+    <section className="w-full bg-[#f9f7f3] py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto bg-white rounded-3xl p-6 sm:p-10 lg:p-12 shadow-xl border border-gray-100">
+        
+        {/* Header */}
+        <div className="text-center max-w-3xl mx-auto">
+          <span className="text-emerald-700 font-bold text-xs uppercase tracking-wider bg-emerald-50 px-3.5 py-1.5 rounded-full border border-emerald-200">
+            Guaranteed Standards
+          </span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 mt-3">
+            Why Choose Brisbane Carpet & Pest Experts
           </h2>
 
-          <div className="flex flex-wrap justify-center gap-4 mt-4 text-sm text-gray-600">
-            {[
-              "Background checked cleaners",
-              "Insurance coverage up to $1M",
-              "No Contracts or Commitments",
-            ].map((item) => (
-              <span key={item} className="flex items-center gap-2">
-                <span className="w-5 h-5 bg-[#43934a] rounded-full text-white" > ✔ </span>
-                  {item}
-              </span>
-            ))}
+          <div className="flex flex-wrap justify-center gap-3 sm:gap-6 mt-6 text-xs sm:text-sm text-gray-700 font-medium">
+            <span className="flex items-center gap-1.5 bg-emerald-50/70 px-3 py-1.5 rounded-full text-emerald-900 border border-emerald-100">
+              <Check className="w-4 h-4 text-emerald-600 font-bold" /> Background-checked Cleaners
+            </span>
+            <span className="flex items-center gap-1.5 bg-emerald-50/70 px-3 py-1.5 rounded-full text-emerald-900 border border-emerald-100">
+              <Check className="w-4 h-4 text-emerald-600 font-bold" /> $10M Public Liability Insurance
+            </span>
+            <span className="flex items-center gap-1.5 bg-emerald-50/70 px-3 py-1.5 rounded-full text-emerald-900 border border-emerald-100">
+              <Check className="w-4 h-4 text-emerald-600 font-bold" /> 100% Fixed Rates & No Surprise Fees
+            </span>
           </div>
-        </motion.div>
+        </div>
 
-        {/* CARD */}
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="mt-12 bg-[#faf7f2] rounded-3xl p-6 md:p-10 flex flex-col md:flex-row items-center gap-8"
-        >
-          {/* IMAGE WITH ORANGE FALLBACK */}
-          <div className="relative w-full md:w-1/2 flex justify-center items-center">
-            <div className="absolute inset-0 bg-brandOrange rounded-2xl" />
-
+        {/* Highlight Card */}
+        <div className="mt-10 bg-gradient-to-r from-[#faf8f4] to-[#f4f7f4] rounded-3xl p-6 sm:p-8 md:p-10 flex flex-col md:flex-row items-center gap-8 border border-gray-200/60">
+          
+          {/* IMAGE */}
+          <div className="w-full md:w-1/2 relative rounded-2xl overflow-hidden shadow-md aspect-[4/3] bg-white">
             <Image
-              src="/assets/about/carpet-service-1.jpg"
-              alt="Cleaning Service"
-              width={360}
-              height={360}
-              className="relative z-10 object-contain p-6"
-              onError={(e) =>
-                ((e.target as HTMLImageElement).style.display = "none")
-              }
+              src="/images/sofa-clean.jpg"
+              alt="Upholstery & Sofa Steam Cleaning Brisbane"
+              fill
+              sizes="(max-width: 768px) 100vw, 500px"
+              className="object-cover transition-transform duration-500 hover:scale-105"
             />
+            <div className="absolute top-3 left-3 bg-emerald-700 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+              ✨ Deep Steam Extraction
+            </div>
           </div>
 
           {/* CONTENT */}
           <div className="w-full md:w-1/2">
-            <h3 className="text-xl md:text-2xl font-semibold mb-3">
-              A Sparkling Clean Home
+            <span className="text-orange-500 font-bold text-xs uppercase tracking-wider">
+              Popular Service
+            </span>
+            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1 mb-3">
+              A Sparkling Clean & Healthy Home
             </h3>
 
-            <p className="text-gray-600 mb-5 text-sm md:text-base">
-              A worry-free recurring cleaning service to keep your home tidy,
-              fresh, and healthy.
+            <p className="text-gray-600 mb-6 text-sm sm:text-base leading-relaxed">
+              Our advanced hot-water steam extraction removes deep-seated dust mites, allergen buildup, tough food stains, and pet odours from carpets and couches.
             </p>
 
-            <ul className="space-y-2 text-gray-600 text-sm">
-              <li>✔ Bathroom cleaning</li>
-              <li>✔ Kitchen wipe-down</li>
-              <li>✔ Vacuuming & mopping floors</li>
-              <li>✔ Dusting all surfaces</li>
+            <ul className="space-y-2.5 text-gray-700 text-sm font-medium mb-6">
+              <li className="flex items-center gap-2">
+                <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold">✓</span>
+                Deep carpet & upholstery hot water steam wash
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold">✓</span>
+                Eco-friendly sanitisation & deodorising treatment
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold">✓</span>
+                Quick drying technology (walkable in hours)
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold">✓</span>
+                Compliant with real estate lease return checklists
+              </li>
             </ul>
-          </div>
-        </motion.div>
 
-        {/* PRICE */}
-        <div className="flex justify-end mt-[-56px] mr-[-12px]">
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            className="bg-white rounded-tl-3xl rounded-tr-2xl rounded-bl[20px] px-16 py-3 flex items-center gap-3"
-          >
-             {/* shadow-sm  */}
-            <span className="text-3xl font-semibold">$29</span>
-            <span className="text-sm text-gray-500">/ per hour</span>
-            <span className="w-8 h-8 bg-[#ff7f00] text-white rounded-full flex items-center justify-center hover:bg-orange-600 transition-all duration-300 hover:scale-110">
-              →
-            </span>
-          </motion.div>
+            <div className="flex flex-wrap items-center gap-4 pt-2">
+              <Link
+                href="/industry/carpet-cleaning"
+                className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-6 py-3 rounded-full text-sm shadow-md transition flex items-center gap-2"
+              >
+                View Carpet Cleaning <ArrowRight className="w-4 h-4" />
+              </Link>
+
+              <Link
+                href="/contact"
+                className="text-orange-600 hover:text-orange-700 font-bold text-sm underline"
+              >
+                Request Free Quote →
+              </Link>
+            </div>
+          </div>
         </div>
 
       </div>

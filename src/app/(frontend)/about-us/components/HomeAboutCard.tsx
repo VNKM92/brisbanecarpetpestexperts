@@ -108,7 +108,7 @@ export default function HomeAboutCard() {
                     <div className="md:w-1/2 space-y-6">
                       <h3 className="text-orange-500 italic font-semibold">About us</h3>
                       <h1 className="text-5xl md:text-6xl font-bold leading-tight">
-                        Honest. Simple. <span className="text-green-600">Qleen.</span>
+                        Honest. Simple. <span className="text-green-600">Clean.</span>
                       </h1>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10">
                         <div>

@@ -8,14 +8,28 @@ import Floatingbubbles from './components/homepage/Floatingbubbles';
 import { prisma } from '@/lib/prisma';
 import { getPageMetadata } from '@/lib/metadata';
 import { DEFAULT_HOMEPAGE_SECTIONS } from '@/lib/homepage-defaults';
+import Link from 'next/link';
+import { Phone, ArrowRight, Sparkles } from 'lucide-react';
 
 export const revalidate = 60; // Instant response with background revalidation
 
 export async function generateMetadata() {
   return getPageMetadata({
     slug: 'home',
-    defaultTitle: 'Brisbane Carpet & Pest Experts - Professional Cleaning Services Brisbane',
-    defaultDescription: 'Brisbane\'s top-rated bond cleaning, pest control, and carpet cleaning experts. 100% bond back guarantee, experienced cleaners, satisfaction guaranteed.',
+    focusKeyword: 'carpet cleaning brisbane',
+    defaultTitle: 'Brisbane Carpet & Pest Experts | Bond & Carpet Steam Cleaning Brisbane',
+    defaultDescription:
+      'Brisbane’s #1 trusted experts for professional carpet steam cleaning, bond cleaning, end of lease cleaning, and pest control in Brisbane, QLD. 100% Bond Back Guarantee.',
+    keywords: [
+      'carpet cleaning brisbane',
+      'bond cleaning brisbane',
+      'end of lease cleaning brisbane',
+      'pest control brisbane',
+      'carpet steam cleaning brisbane',
+      'couch cleaning brisbane',
+      'exit clean brisbane',
+      'vacate cleaning brisbane',
+    ],
     path: '/',
   });
 }
@@ -93,72 +107,95 @@ export default async function Home() {
   const cta = homepageSections.whatCanWeClean || DEFAULT_HOMEPAGE_SECTIONS.whatCanWeClean;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#f9f7f3] py-10 px-4">
+    <div className="w-full min-h-screen bg-[#f9f7f3] text-[#1a1f2c] overflow-x-hidden">
+      {/* 1. Hero & Top Slider */}
       <Hero />
+
+      {/* 2. Value Propositions & Trust Section */}
       <HomeAbout />
+
+      {/* 3. Interactive Pricing Estimator */}
       <EstimatePage />
+
+      {/* 4. Residential, Commercial & Specialty Tab Showcase */}
       <MainCard />
+
+      {/* 5. Contact CTA & Popular Service Details */}
       <Floatingbubbles />
+
+      {/* 6. Verified Customer Testimonials */}
       <Testimonials />
 
-      <div className="mt-15 container mx-auto p-6">
-        <h2 className="text-3xl font-bold text-center text-green-700 mb-6">
-          Recent Articles - Tips, News & Updates
-        </h2>
-        <div className="mt-15 grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      {/* 7. Recent Articles & Tips */}
+      <section className="py-12 md:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
+          <span className="text-emerald-700 font-bold text-xs uppercase tracking-wider bg-emerald-50 px-3.5 py-1.5 rounded-full border border-emerald-200">
+            Insights & Guides
+          </span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 mt-3">
+            Recent Articles & Cleaning Tips
+          </h2>
+          <p className="text-gray-600 text-sm sm:text-base mt-2">
+            Expert advice from certified Brisbane cleaners and pest managers.
+          </p>
+        </div>
+
+        <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {articles.map((article, index) => (
             <SuperCard key={index} {...article} />
           ))}
         </div>
-      </div>
+      </section>
 
-      {/* Dynamic What Can We Clean Section */}
-      <section className="mt-30 w-full max-w-7xl mx-auto px-4">
-        <div className="relative bg-[#ff7f00] rounded-[40px] overflow-hidden min-h-[420px] md:min-h-[500px] flex items-center">
-          <div className="relative z-10 p-8 md:p-16 max-w-xl text-white animate-slideFade">
-            <h1 className="text-3xl md:text-5xl font-bold leading-tight mb-6">
-              {cta.heading || "What Can We Clean For You Today?"}
-            </h1>
+      {/* 8. Responsive "What Can We Clean For You Today?" CTA Banner */}
+      <section className="py-8 sm:py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="relative bg-gradient-to-r from-orange-500 to-amber-500 rounded-3xl overflow-hidden shadow-2xl p-6 sm:p-10 md:p-14 text-white">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative z-10">
+            
+            {/* Left Content */}
+            <div className="md:col-span-7 lg:col-span-8 space-y-4 sm:space-y-6">
+              <span className="inline-block px-3 py-1 bg-white/20 text-white rounded-full text-xs font-bold uppercase tracking-wider border border-white/30">
+                100% Satisfaction & Bond Back Guarantee
+              </span>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight">
+                {cta.heading || "What Can We Clean For You Today?"}
+              </h2>
+              <p className="text-sm sm:text-base md:text-lg text-white/90 max-w-xl leading-relaxed">
+                {cta.subheading || "Book your clean now with Brisbane's trusted carpet steam and bond cleaning specialists."}
+              </p>
 
-            <p className="text-lg mb-10">
-              {cta.subheading || "Book Your Clean Now"}
-            </p>
-
-            {/* Call Button */}
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <div className="absolute inset-0 rounded-full animate-pulseRing"></div>
+              {/* Call & Booking Actions */}
+              <div className="flex flex-wrap items-center gap-4 pt-2">
                 <a
                   href={`tel:${cta.phoneTel || '0434061188'}`}
-                  className="relative w-14 h-14 bg-white text-orange-500 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition"
-                  aria-label="Call Us"
+                  className="bg-white hover:bg-orange-50 text-orange-600 font-bold px-6 py-3.5 rounded-full shadow-lg transition flex items-center gap-2 text-sm sm:text-base"
                 >
-                  📞
+                  <Phone className="w-5 h-5 text-orange-500" />
+                  Call {cta.phone || "0434 061 188"}
                 </a>
+
+                <Link
+                  href="/contact"
+                  className="bg-black/20 hover:bg-black/30 border border-white/30 text-white font-bold px-6 py-3.5 rounded-full backdrop-blur-sm transition flex items-center gap-2 text-sm sm:text-base"
+                >
+                  Get A Quote <ArrowRight className="w-4 h-4" />
+                </Link>
               </div>
-
-              <p className="text-lg font-semibold">
-                Call us: <a href={`tel:${cta.phoneTel || '0434061188'}`} className="font-bold hover:underline">{cta.phone || "0434 061 188"}</a>
-              </p>
             </div>
-          </div>
 
-          {/* Image Wrapper */}
-          <div className="absolute right-0 bottom-0 md:top-0 md:bottom-auto w-full md:w-1/2 flex justify-center md:justify-end pointer-events-none">
-            <img
-              src={cta.cleanerImage || "/assets/home/we-are.png"}
-              alt="Professional Brisbane Cleaner"
-              className="max-h-[420px] md:max-h-[520px] object-contain translate-y-6 md:translate-y-0 transition-all duration-700"
-            />
-          </div>
+            {/* Right Visual / Badge */}
+            <div className="md:col-span-5 lg:col-span-4 flex justify-center md:justify-end">
+              <div className="relative bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 text-center max-w-xs w-full">
+                <div className="w-16 h-16 rounded-full bg-white text-orange-500 mx-auto flex items-center justify-center text-3xl shadow-md mb-3">
+                  🛡️
+                </div>
+                <h4 className="font-bold text-lg text-white">REIQ Approved Checklist</h4>
+                <p className="text-xs text-white/80 mt-1">
+                  72-Hour Free Re-Clean Warranty on all End-of-Lease cleans.
+                </p>
+              </div>
+            </div>
 
-          {/* Award Badge */}
-          <div className="absolute top-6 right-6 z-20">
-            <img
-              src={cta.awardBadgeImage || "/assets/home/100-Satisfaction.png"}
-              alt="100% Satisfaction Guarantee"
-              className="w-20 md:w-24 drop-shadow-lg"
-            />
           </div>
         </div>
       </section>

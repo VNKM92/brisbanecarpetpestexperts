@@ -1,5 +1,6 @@
 import { prisma } from './prisma';
 import { logActivity } from './activity-logger';
+import { sendEmail } from './mailer';
 
 // ----------------------------------------------------
 // 1. TRANSACTIONAL EMAIL DISPATCHER
@@ -10,6 +11,7 @@ interface SendEmailParams {
   subject: string;
   htmlContent: string;
   recipientName?: string;
+  replyTo?: string;
 }
 
 export async function sendEmailNotification({
@@ -17,42 +19,18 @@ export async function sendEmailNotification({
   subject,
   htmlContent,
   recipientName,
+  replyTo,
 }: SendEmailParams): Promise<{ success: boolean; logId?: string; error?: string }> {
   try {
-    // If SMTP / Resend / SendGrid credentials are provided in env:
-    const apiKey = process.env.EMAIL_API_KEY || process.env.RESEND_API_KEY;
-    const fromEmail = process.env.EMAIL_FROM || 'noreply@brisbanecarpet.com';
+    const dispatchResult = await sendEmail({
+      to,
+      subject,
+      html: htmlContent,
+      replyTo,
+    });
 
-    let sendStatus = 'SENT';
-    let errorMessage: string | null = null;
-
-    if (apiKey && process.env.NODE_ENV === 'production') {
-      // Direct HTTP integration with email provider API
-      try {
-        const response = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${apiKey}`,
-          },
-          body: JSON.stringify({
-            from: `Brisbane Cleaning Experts <${fromEmail}>`,
-            to: [to],
-            subject,
-            html: htmlContent,
-          }),
-        });
-
-        if (!response.ok) {
-          const errData = await response.json();
-          sendStatus = 'FAILED';
-          errorMessage = JSON.stringify(errData);
-        }
-      } catch (err: any) {
-        sendStatus = 'FAILED';
-        errorMessage = err?.message || 'SMTP transport failed';
-      }
-    }
+    const sendStatus = dispatchResult.success ? 'SENT' : 'FAILED';
+    const errorMessage = dispatchResult.error || null;
 
     // Save Email Dispatch Record in SQL EmailLog table
     const log = await prisma.emailLog.create({
@@ -65,7 +43,7 @@ export async function sendEmailNotification({
       },
     });
 
-    return { success: sendStatus === 'SENT', logId: log.id, error: errorMessage || undefined };
+    return { success: dispatchResult.success, logId: log.id, error: errorMessage || undefined };
   } catch (err: any) {
     console.error('Failed to log email dispatch:', err);
     return { success: false, error: err.message };
@@ -208,49 +186,140 @@ export async function handleInboundEnquiryNotification({
 
   // 1. Send Customer Confirmation Email
   const customerEmailHtml = `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b; padding: 20px; border: 1px solid #e2e8f0; rounded: 12px;">
-      <h2 style="color: #059669; margin-top: 0;">Thank You for Your Enquiry!</h2>
-      <p>Hi ${firstName},</p>
-      <p>We have successfully received your service enquiry for <strong>${service || 'Cleaning Services'}</strong>.</p>
-      <div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #cbd5e1;">
-        <p style="margin: 0 0 8px 0;"><strong>Enquiry Reference:</strong> <span style="color: #059669; font-weight: bold;">${enquiryNumber}</span></p>
-        <p style="margin: 0 0 8px 0;"><strong>Requested Service:</strong> ${service || 'General Cleaning'}</p>
-        <p style="margin: 0;"><strong>Status:</strong> Under Review by Dispatch Team</p>
-      </div>
-      <p>Our Brisbane team will review your details and contact you within <strong>15–30 minutes</strong> during standard business hours.</p>
-      <p>If you need urgent assistance, please call us directly at <strong>0434 061 188</strong>.</p>
-      <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 25px 0;" />
-      <p style="font-size: 12px; color: #64748b;">Brisbane Carpet & Pest Experts · Brisbane, Queensland, Australia</p>
-    </div>
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Enquiry Received - Brisbane Carpet & Pest Experts</title>
+    </head>
+    <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;">
+        <tr>
+          <td align="center" style="padding: 24px 12px;">
+            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0;">
+              
+              <!-- HEADER -->
+              <tr>
+                <td style="background: linear-gradient(135deg, #065f46 0%, #047857 100%); padding: 32px 28px; text-align: center;">
+                  <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px;">Brisbane Carpet & Pest Experts</h1>
+                  <p style="color: #a7f3d0; margin: 6px 0 0 0; font-size: 14px; font-weight: 500;">Bond Cleaning & Pest Management Specialists</p>
+                </td>
+              </tr>
+
+              <!-- BODY -->
+              <tr>
+                <td style="padding: 32px 28px;">
+                  <h2 style="color: #0f172a; margin: 0 0 12px 0; font-size: 20px; font-weight: 700;">Thank You, ${firstName}!</h2>
+                  <p style="color: #475569; font-size: 15px; line-height: 1.6; margin: 0 0 20px 0;">
+                    We have successfully received your service enquiry for <strong style="color: #0f172a;">${service || 'Cleaning Services'}</strong>. Our dispatch team is currently checking real-time availability in your Brisbane area.
+                  </p>
+
+                  <!-- SUMMARY BOX -->
+                  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 24px;">
+                    <tr>
+                      <td style="padding: 18px 20px;">
+                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                          <tr>
+                            <td style="padding: 4px 0; color: #64748b; font-size: 13px; font-weight: 500;">Enquiry Ref:</td>
+                            <td style="padding: 4px 0; color: #059669; font-size: 14px; font-weight: 700; text-align: right;">${enquiryNumber}</td>
+                          </tr>
+                          <tr>
+                            <td style="padding: 4px 0; color: #64748b; font-size: 13px; font-weight: 500;">Requested Service:</td>
+                            <td style="padding: 4px 0; color: #0f172a; font-size: 14px; font-weight: 600; text-align: right;">${service || 'General Cleaning'}</td>
+                          </tr>
+                          <tr>
+                            <td style="padding: 4px 0; color: #64748b; font-size: 13px; font-weight: 500;">Details:</td>
+                            <td style="padding: 4px 0; color: #0f172a; font-size: 13px; text-align: right;">${message || 'Standard Request'}</td>
+                          </tr>
+                          <tr>
+                            <td style="padding: 4px 0; color: #64748b; font-size: 13px; font-weight: 500;">Status:</td>
+                            <td style="padding: 4px 0; color: #d97706; font-size: 13px; font-weight: 700; text-align: right;">Priority Dispatch Review</td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+
+                  <!-- GUARANTEE BADGE -->
+                  <div style="background-color: #ecfdf5; border-left: 4px solid #10b981; padding: 14px 16px; border-radius: 6px; margin-bottom: 24px;">
+                    <p style="margin: 0; color: #065f46; font-size: 13px; font-weight: 600;">
+                      🛡️ 100% Bond Back Guarantee: All end-of-lease cleans adhere strictly to Queensland RTA & REIQ real estate checklists with a 72-hour free warranty.
+                    </p>
+                  </div>
+
+                  <p style="color: #475569; font-size: 14px; line-height: 1.6; margin: 0 0 20px 0;">
+                    Need urgent assistance or have questions? Contact our dispatch line directly at <strong style="color: #059669;">0434 061 188</strong>.
+                  </p>
+
+                  <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                    <tr>
+                      <td align="center">
+                        <a href="tel:0434061188" style="display: inline-block; background-color: #ea580c; color: #ffffff; font-size: 15px; font-weight: 700; text-decoration: none; padding: 14px 28px; border-radius: 9999px; box-shadow: 0 4px 10px rgba(234, 88, 12, 0.3);">
+                          Call Dispatch: 0434 061 188
+                        </a>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+
+              <!-- FOOTER -->
+              <tr>
+                <td style="background-color: #f1f5f9; padding: 20px 28px; text-align: center; border-top: 1px solid #e2e8f0;">
+                  <p style="margin: 0; color: #64748b; font-size: 12px;">
+                    Brisbane Carpet & Pest Experts · 192 Turton St, Sunnybank, QLD 4109, Brisbane, Australia
+                  </p>
+                  <p style="margin: 6px 0 0 0; color: #94a3b8; font-size: 11px;">
+                    © ${new Date().getFullYear()} Brisbane Carpet & Pest Experts. All rights reserved.
+                  </p>
+                </td>
+              </tr>
+
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
   `;
 
   await sendEmailNotification({
     to: email,
-    subject: `Enquiry Received [${enquiryNumber}] - Brisbane Carpet & Pest Experts`,
+    subject: `Enquiry Confirmation [${enquiryNumber}] - Brisbane Carpet & Pest Experts`,
     htmlContent: customerEmailHtml,
     recipientName: customerFullName,
   });
 
-  // 2. Send Admin Alert Email
+  // 2. Send Admin Alert Email (with customer reply-to)
   const adminEmailHtml = `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b; padding: 20px; border: 1px solid #e2e8f0;">
-      <h3 style="color: #0f172a;">🔔 New Customer Enquiry: ${enquiryNumber}</h3>
-      <p><strong>Customer:</strong> ${customerFullName}</p>
-      <p><strong>Email:</strong> ${email}</p>
-      <p><strong>Phone:</strong> ${phone}</p>
-      <p><strong>Service:</strong> ${service || 'General Enquiry'}</p>
-      <p><strong>Message:</strong> ${message || 'No message provided'}</p>
-      <p><strong>IP Address:</strong> ${ipAddress || 'Unknown'}</p>
-      <hr />
-      <p><a href="http://localhost:3000/admin/enquiries" style="color: #059669; font-weight: bold;">View in Admin Panel →</a></p>
-    </div>
+    <!DOCTYPE html>
+    <html>
+    <head><meta charset="utf-8"><title>New Enquiry</title></head>
+    <body style="background-color: #0f172a; font-family: sans-serif; padding: 20px; color: #f8fafc;">
+      <div style="max-width: 600px; margin: 0 auto; background-color: #1e293b; border-radius: 12px; padding: 24px; border: 1px solid #334155;">
+        <h2 style="color: #34d399; margin-top: 0;">🔔 New Cleaning Enquiry Received</h2>
+        <div style="background-color: #0f172a; padding: 16px; border-radius: 8px; margin: 16px 0; border: 1px solid #334155;">
+          <p style="margin: 0 0 8px 0;"><strong>Enquiry Reference:</strong> <span style="color: #fbbf24;">${enquiryNumber}</span></p>
+          <p style="margin: 0 0 8px 0;"><strong>Customer:</strong> ${customerFullName}</p>
+          <p style="margin: 0 0 8px 0;"><strong>Email:</strong> <a href="mailto:${email}" style="color: #38bdf8;">${email}</a></p>
+          <p style="margin: 0 0 8px 0;"><strong>Phone:</strong> <a href="tel:${phone}" style="color: #4ade80;">${phone}</a></p>
+          <p style="margin: 0 0 8px 0;"><strong>Service:</strong> ${service || 'General Enquiry'}</p>
+          <p style="margin: 0 0 8px 0;"><strong>Details / Notes:</strong> ${message || 'N/A'}</p>
+          <p style="margin: 0;"><strong>IP Address:</strong> ${ipAddress || 'Unknown'}</p>
+        </div>
+        <p style="margin: 16px 0 0 0; font-size: 13px; color: #94a3b8;">Click 'Reply' directly in your email client to reply to the customer (${email}).</p>
+      </div>
+    </body>
+    </html>
   `;
 
   await sendEmailNotification({
     to: adminEmail,
-    subject: `[NEW ENQUIRY] ${enquiryNumber} - ${customerFullName} (${service || 'Cleaning'})`,
+    subject: `[NEW LEAD] ${enquiryNumber} - ${customerFullName} (${service || 'Cleaning'})`,
     htmlContent: adminEmailHtml,
     recipientName: 'Admin Team',
+    replyTo: email,
   });
 
   // 3. Send WhatsApp Notification to Customer
@@ -322,41 +391,70 @@ export async function handleInboundBookingNotification({
 
   // 1. Send Customer Confirmation Email
   const customerEmailHtml = `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
-      <h2 style="color: #059669; margin-top: 0;">Your Booking Request is Confirmed!</h2>
-      <p>Hi ${customerName},</p>
-      <p>Thank you for booking with Brisbane Carpet & Pest Experts. Here are your reservation details:</p>
-      
-      <div style="background-color: #f8fafc; padding: 16px; border-radius: 8px; margin: 20px 0; border: 1px solid #cbd5e1;">
-        <table style="width: 100%; border-collapse: collapse;">
-          <tr>
-            <td style="padding: 6px 0; color: #64748b;">Booking Reference:</td>
-            <td style="padding: 6px 0; font-weight: bold; color: #059669;">${bookingNumber}</td>
-          </tr>
-          <tr>
-            <td style="padding: 6px 0; color: #64748b;">Service:</td>
-            <td style="padding: 6px 0; font-weight: bold;">${serviceName}</td>
-          </tr>
-          <tr>
-            <td style="padding: 6px 0; color: #64748b;">Service Address:</td>
-            <td style="padding: 6px 0;">${serviceAddress}</td>
-          </tr>
-          <tr>
-            <td style="padding: 6px 0; color: #64748b;">Preferred Schedule:</td>
-            <td style="padding: 6px 0;">${scheduledDate ? new Date(scheduledDate).toLocaleDateString('en-AU') : 'Flexible'} (${timeSlot || 'Anytime'})</td>
-          </tr>
-          <tr>
-            <td style="padding: 6px 0; color: #64748b;">Estimated Total:</td>
-            <td style="padding: 6px 0; font-weight: bold; color: #0f172a;">$${totalPrice.toFixed(2)} AUD</td>
-          </tr>
-        </table>
-      </div>
-
-      <p>Our field dispatch team is assigning your certified cleaning technician. We will notify you when the team is on the way.</p>
-      <p>Need to modify your booking? Reply to this email or call <strong>0434 061 188</strong>.</p>
-      <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 25px 0;" />
-      <p style="font-size: 12px; color: #64748b;">Brisbane Carpet & Pest Experts · 100% Satisfaction & Bond Back Guarantee</p>
-    </div>
+    <!DOCTYPE html>
+    <html>
+    <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Booking Confirmed</title></head>
+    <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+      <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td align="center" style="padding: 24px 12px;">
+            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+              <tr>
+                <td style="background: linear-gradient(135deg, #065f46 0%, #047857 100%); padding: 32px 28px; text-align: center;">
+                  <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800;">Brisbane Carpet & Pest Experts</h1>
+                  <p style="color: #a7f3d0; margin: 6px 0 0 0; font-size: 14px;">Official Service Reservation</p>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 32px 28px;">
+                  <h2 style="color: #0f172a; margin: 0 0 12px 0; font-size: 20px;">Your Booking Request is Confirmed!</h2>
+                  <p style="color: #475569; font-size: 15px; line-height: 1.6; margin: 0 0 20px 0;">
+                    Hi <strong>${customerName}</strong>, thank you for booking with Brisbane Carpet & Pest Experts. Here are your reservation details:
+                  </p>
+                  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 24px;">
+                    <tr>
+                      <td style="padding: 18px 20px;">
+                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                          <tr>
+                            <td style="padding: 6px 0; color: #64748b; font-size: 13px;">Booking Ref:</td>
+                            <td style="padding: 6px 0; color: #059669; font-size: 14px; font-weight: bold; text-align: right;">${bookingNumber}</td>
+                          </tr>
+                          <tr>
+                            <td style="padding: 6px 0; color: #64748b; font-size: 13px;">Service:</td>
+                            <td style="padding: 6px 0; color: #0f172a; font-size: 14px; font-weight: 600; text-align: right;">${serviceName}</td>
+                          </tr>
+                          <tr>
+                            <td style="padding: 6px 0; color: #64748b; font-size: 13px;">Service Address:</td>
+                            <td style="padding: 6px 0; color: #0f172a; font-size: 13px; text-align: right;">${serviceAddress}</td>
+                          </tr>
+                          <tr>
+                            <td style="padding: 6px 0; color: #64748b; font-size: 13px;">Scheduled Date:</td>
+                            <td style="padding: 6px 0; color: #0f172a; font-size: 13px; font-weight: 600; text-align: right;">${scheduledDate ? new Date(scheduledDate).toLocaleDateString('en-AU') : 'Flexible'} (${timeSlot || 'Anytime'})</td>
+                          </tr>
+                          <tr>
+                            <td style="padding: 6px 0; color: #64748b; font-size: 13px;">Estimated Total:</td>
+                            <td style="padding: 6px 0; color: #0f172a; font-size: 16px; font-weight: 800; text-align: right;">$${totalPrice.toFixed(2)} AUD</td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                  <p style="color: #475569; font-size: 14px; line-height: 1.6;">
+                    Our field dispatch team is assigning your certified cleaning technician. If you need any adjustments, reply to this email or call <strong style="color: #059669;">0434 061 188</strong>.
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td style="background-color: #f1f5f9; padding: 20px 28px; text-align: center; border-top: 1px solid #e2e8f0;">
+                  <p style="margin: 0; color: #64748b; font-size: 12px;">Brisbane Carpet & Pest Experts · 100% Satisfaction & Bond Back Guarantee</p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
   `;
 
   await sendEmailNotification({
@@ -366,18 +464,27 @@ export async function handleInboundBookingNotification({
     recipientName: customerName,
   });
 
-  // 2. Send Admin Alert Email
+  // 2. Send Admin Alert Email (with customer reply-to)
   const adminEmailHtml = `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b; padding: 20px; border: 1px solid #e2e8f0;">
-      <h3 style="color: #0f172a;">🎉 New Booking Received: ${bookingNumber}</h3>
-      <p><strong>Customer:</strong> ${customerName}</p>
-      <p><strong>Email:</strong> ${customerEmail} | <strong>Phone:</strong> ${customerPhone}</p>
-      <p><strong>Service:</strong> ${serviceName}</p>
-      <p><strong>Address:</strong> ${serviceAddress}</p>
-      <p><strong>Estimated Total:</strong> $${totalPrice.toFixed(2)} AUD</p>
-      <hr />
-      <p><a href="http://localhost:3000/admin/bookings" style="color: #059669; font-weight: bold;">View Booking Dispatch Board →</a></p>
-    </div>
+    <!DOCTYPE html>
+    <html>
+    <head><meta charset="utf-8"><title>New Booking</title></head>
+    <body style="background-color: #0f172a; font-family: sans-serif; padding: 20px; color: #f8fafc;">
+      <div style="max-width: 600px; margin: 0 auto; background-color: #1e293b; border-radius: 12px; padding: 24px; border: 1px solid #334155;">
+        <h2 style="color: #38bdf8; margin-top: 0;">🎉 New Booking Received: ${bookingNumber}</h2>
+        <div style="background-color: #0f172a; padding: 16px; border-radius: 8px; margin: 16px 0; border: 1px solid #334155;">
+          <p style="margin: 0 0 8px 0;"><strong>Customer:</strong> ${customerName}</p>
+          <p style="margin: 0 0 8px 0;"><strong>Email:</strong> <a href="mailto:${customerEmail}" style="color: #38bdf8;">${customerEmail}</a></p>
+          <p style="margin: 0 0 8px 0;"><strong>Phone:</strong> <a href="tel:${customerPhone}" style="color: #4ade80;">${customerPhone}</a></p>
+          <p style="margin: 0 0 8px 0;"><strong>Service:</strong> ${serviceName}</p>
+          <p style="margin: 0 0 8px 0;"><strong>Address:</strong> ${serviceAddress}</p>
+          <p style="margin: 0 0 8px 0;"><strong>Schedule:</strong> ${scheduledDate || 'Flexible'} (${timeSlot || 'Anytime'})</p>
+          <p style="margin: 0;"><strong>Estimated Total:</strong> <span style="color: #34d399; font-weight: bold;">$${totalPrice.toFixed(2)} AUD</span></p>
+        </div>
+        <p><a href="http://localhost:3000/admin/bookings" style="display: inline-block; background-color: #059669; color: #ffffff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold;">View Booking Dispatch Board →</a></p>
+      </div>
+    </body>
+    </html>
   `;
 
   await sendEmailNotification({
@@ -385,6 +492,7 @@ export async function handleInboundBookingNotification({
     subject: `[NEW BOOKING] ${bookingNumber} - ${customerName} ($${totalPrice})`,
     htmlContent: adminEmailHtml,
     recipientName: 'Admin Team',
+    replyTo: customerEmail,
   });
 
   // 3. Send WhatsApp Notification

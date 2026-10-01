@@ -1,40 +1,25 @@
-export const metadata = {
-    title: "Qleen | Professional Home Cleaning Services",
-    description: "Experience premium home cleaning with Qleen — where cleanliness meets comfort.",
-    keywords: ["cleaning", "home service", "qleen", "eco cleaning", "professional cleaners"],
-    openGraph: {
-        title: "Qleen - Home Cleaning Experts",
-        description: "Reliable, eco-friendly home cleaning services.",
-        url: "https://qleen.com/bond-cleaning",
-        siteName: "Qleen",
-        images: [
-            {
-                url: "/chair.png",
-                width: 1200,
-                height: 630,
-                alt: "Qleen - professional cleaning",
-            },
-        ],
-        locale: "en_US",
-        type: "website",
-    },
-    twitter: {
-        card: "summary_large_image",
-        title: "Qleen | Bond Cleaning",
-        description: "Professional bond and end-of-lease cleaning services to help you get your bond back.",
-        images: ["/chair.png"],
-    },
-    robots: {
-        index: true,
-        follow: true,
-    },
-};
+import { getPageMetadata } from "@/lib/metadata";
+import BondCleaningClient from "./BondCleaningClient";
 
-import BondCleaningClient from './BondCleaningClient';
-
-export default function BondCleaningPage() {
-    return <BondCleaningClient />;
+export async function generateMetadata() {
+  return getPageMetadata({
+    slug: "bond-cleaning",
+    serviceSlug: "bond-cleaning-brisbane",
+    focusKeyword: "bond cleaning brisbane",
+    defaultTitle: "Bond Cleaning Brisbane | 100% Bond Back Guarantee | Brisbane Carpet & Pest Experts",
+    defaultDescription:
+      "Brisbane's #1 bond cleaning specialists. 100% Bond Back Guarantee, REIQ approved checklists, steam carpet cleaning & flea pest control treatments.",
+    path: "/bond-cleaning",
+    keywords: [
+      "bond cleaning brisbane",
+      "exit cleaning brisbane",
+      "end of lease cleaning brisbane",
+      "bond back guarantee",
+      "carpet steam cleaning brisbane"
+    ]
+  });
 }
 
-
-
+export default function BondCleaningPage() {
+  return <BondCleaningClient />;
+}

@@ -16,7 +16,7 @@ export const DEFAULT_HOMEPAGE_SECTIONS = {
   homeAbout: {
     sloganBadge: "About us",
     title: "Honest. Simple.",
-    titleHighlight: "Qleen.",
+    titleHighlight: "Spotless.",
     description: "Before your first house cleaning service, we'll take the time to talk about your preferences and priorities with you and combine them with cleaning techniques to give your home the greatest possible clean.",
     satisfactionRate: "96%",
     satisfactionReviewCount: "356 reviews on Google",

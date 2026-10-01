@@ -37,10 +37,11 @@ export default function LoungeclPage() {
           {/* Content */}
           <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-4">
             <h1 className="text-white text-3xl md:text-5xl font-bold mb-4">
-           Lounge Cleaning
+              Lounge Cleaning Brisbane
             </h1>
             <p className="text-white text-base md:text-lg max-w-2xl">
-              Ensure you get your bond deposit back with our expert bond cleaning services in Brisbane. Our comprehensive cleaning packages are tailored to meet the strict standards of landlords and property managers. With flexible scheduling and a satisfaction guarantee, we make the moving process stress-free and efficient. </p>
+              Professional lounge, recliner, and leather sofa cleaning in Brisbane. Deep steam extraction and fabric conditioning for a fresh, hygienic home.
+            </p>
           </div>
         </section>
     <div className="min-h-screen flex flex-col md:flex-row bg-gray-50">

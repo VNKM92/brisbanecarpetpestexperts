@@ -6,10 +6,18 @@ import { generateBreadcrumbSchema } from "@/lib/seo-schema";
 export async function generateMetadata() {
   return getPageMetadata({
     slug: "pricing",
+    focusKeyword: "carpet cleaning prices brisbane",
     defaultTitle: "Cleaning Pricing & Calculator | Brisbane Carpet & Pest Experts",
     defaultDescription:
-      "Transparent pricing and instant online estimate calculator for bond cleaning, carpet cleaning, and pest control in Brisbane.",
+      "Transparent pricing and instant online estimate calculator for bond cleaning, carpet cleaning, and pest control in Brisbane. No hidden charges.",
     path: "/pricing",
+    keywords: [
+      "carpet cleaning prices brisbane",
+      "bond cleaning cost brisbane",
+      "pest control price brisbane",
+      "cheap cleaning quotes brisbane",
+      "cleaning price calculator"
+    ]
   });
 }
 

@@ -10,9 +10,11 @@ const contactSchema = z.object({
   name: z.string().optional(),
   email: z.string().email('A valid email address is required'),
   phone: z.string().min(6, 'A valid phone number is required'),
-  service: z.string().optional().default('General Cleaning'),
+  service: z.string().optional().default('Bond Cleaning Brisbane'),
+  suburb: z.string().optional().default(''),
   bedrooms: z.string().optional().default(''),
   bathrooms: z.string().optional().default(''),
+  preferredDate: z.string().optional().default(''),
   message: z.string().optional().default(''),
 });
 
@@ -48,15 +50,28 @@ export async function POST(request: NextRequest) {
     const lastName = sanitizeString(validated.lastName);
     const email = validated.email.toLowerCase().trim();
     const phone = sanitizeString(validated.phone);
-    const service = sanitizeString(validated.service) || 'General Cleaning';
+    const service = sanitizeString(validated.service) || 'Bond Cleaning Brisbane';
+    const suburb = sanitizeString(validated.suburb);
     const bedrooms = sanitizeString(validated.bedrooms);
     const bathrooms = sanitizeString(validated.bathrooms);
-    const message = sanitizeString(validated.message);
+    const preferredDate = sanitizeString(validated.preferredDate);
+    const rawMessage = sanitizeString(validated.message);
+
+    // Assemble rich structured message note
+    const structuredNotes = [
+      suburb ? `Suburb: ${suburb}` : null,
+      preferredDate ? `Preferred Date: ${preferredDate}` : null,
+      rawMessage ? `Notes: ${rawMessage}` : null,
+    ]
+      .filter(Boolean)
+      .join(' | ');
+
+    const fullMessage = structuredNotes || rawMessage || 'Enquiry submitted from Contact page';
 
     // 3. Generate Reference Number
     const enquiryNumber = `ENQ-${Math.floor(100000 + Math.random() * 900000)}`;
 
-    // 4. Save Enquiry in SQL Database
+    // 4. Save Enquiry in Database
     const enquiry = await prisma.enquiry.create({
       data: {
         enquiryNumber,
@@ -67,24 +82,26 @@ export async function POST(request: NextRequest) {
         service,
         bedrooms,
         bathrooms,
-        message,
+        message: fullMessage,
         status: 'NEW',
         ipAddress,
       },
     });
 
     // 5. Auto-upsert Customer Record in SQL
+    const fullCustomerAddress = suburb ? `${suburb}, Brisbane QLD` : 'Brisbane, QLD';
     await prisma.customer.upsert({
       where: { email },
       update: {
         name: `${firstName} ${lastName}`.trim(),
         phone,
+        address: fullCustomerAddress,
       },
       create: {
         name: `${firstName} ${lastName}`.trim(),
         email,
         phone,
-        address: 'Brisbane, QLD',
+        address: fullCustomerAddress,
       },
     });
 
@@ -97,7 +114,7 @@ export async function POST(request: NextRequest) {
       email,
       phone,
       service,
-      message,
+      message: fullMessage,
       ipAddress,
       userAgent,
     });

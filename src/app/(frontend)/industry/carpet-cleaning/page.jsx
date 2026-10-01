@@ -39,10 +39,11 @@ export default function AgecarecleaningPage() {
           {/* Content */}
           <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-4">
             <h1 className="text-white text-3xl md:text-5xl font-bold mb-4">
-           Carpet Cleaning
+              Carpet Cleaning Brisbane
             </h1>
             <p className="text-white text-base md:text-lg max-w-2xl">
-              Ensure you get your bond deposit back with our expert bond cleaning services in Brisbane. Our comprehensive cleaning packages are tailored to meet the strict standards of landlords and property managers. With flexible scheduling and a satisfaction guarantee, we make the moving process stress-free and efficient. </p>
+              Revitalize your carpets with Brisbane's trusted steam cleaning and stain removal experts. Deep hot water extraction, pet odour elimination, and allergen sanitization for homes and businesses across Greater Brisbane.
+            </p>
           </div>
         </section>
     <div className="min-h-screen flex flex-col md:flex-row bg-gray-50">
@@ -75,18 +76,18 @@ export default function AgecarecleaningPage() {
       <main className="flex-1 p-6 md:p-12">
         <div className="max-w-3xl mx-auto space-y-6 animate-fadeIn">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
-            Introduction
+            Professional Carpet Steam Cleaning Brisbane
           </h1>
           <p className="text-gray-700 leading-relaxed">
-           At Brisbane Carpet and Pest Control, we understand that clean carpets are not just about aesthetics; they play a crucial role in the health and comfort of your home. With years of experience and a commitment to excellence, our carpet cleaning services are designed to provide you with the highest standard of cleanliness and care. Our team of skilled professionals uses state-of-the-art equipment and eco-friendly products to ensure your carpets are not only spotless but also safe for you and your family.<br/><br/>
+           At Brisbane Carpet & Pest Experts, we understand that clean carpets are not just about aesthetics; they play a crucial role in the health and comfort of your home. With years of experience and a commitment to excellence, our carpet cleaning services are designed to provide you with the highest standard of cleanliness and care. Our team of skilled professionals uses state-of-the-art equipment and eco-friendly products to ensure your carpets are not only spotless but also safe for you and your family.<br/><br/>
 
             Carpets can easily become a repository for dust, allergens, and stains, which can impact indoor air quality and overall health. Regular cleaning is essential to maintain a hygienic environment and extend the life of your carpets. Whether you’re dealing with stubborn stains, pet odors, or just routine maintenance, our expert technicians are equipped to handle it all. We take pride in our ability to deliver outstanding results that meet and exceed your expectations.<br/><br/>
 
             Our carpet cleaning process is thorough and meticulous, beginning with a detailed inspection to identify the best approach for your specific needs. We then use advanced cleaning methods, including hot water extraction and dry cleaning, to lift dirt and grime effectively. Our environmentally friendly solutions ensure that your carpets are cleaned without harsh chemicals, making them safe for children and pets.<br/><br/>
 
-            We are dedicated to providing exceptional service and ensuring complete customer satisfaction. Our goal is to make your carpets look and feel as good as new, all while delivering a hassle-free experience. At Brisbane Carpet and Pest Control, we treat every carpet with the care and attention it deserves, ensuring a deep clean that revitalizes your space and enhances your living environment.<br/><br/>
+            We are dedicated to providing exceptional service and ensuring complete customer satisfaction. Our goal is to make your carpets look and feel as good as new, all while delivering a hassle-free experience. At Brisbane Carpet & Pest Experts, we treat every carpet with the care and attention it deserves, ensuring a deep clean that revitalizes your space and enhances your living environment.<br/><br/>
 
-            Choose Brisbane Carpet and Pest Control for your carpet cleaning needs and experience the difference that professional service can make. With our commitment to quality, reliability, and customer satisfaction, we are confident that you will be thrilled with the results. Let us help you maintain a cleaner, healthier home with our premier carpet cleaning services in Brisbane.
+            Choose Brisbane Carpet & Pest Experts for your carpet cleaning needs and experience the difference that professional service can make. With our commitment to quality, reliability, and customer satisfaction, we are confident that you will be thrilled with the results. Let us help you maintain a cleaner, healthier home with our premier carpet cleaning services in Brisbane.
           </p>
           {/* Add rest of the content similarly */}
 

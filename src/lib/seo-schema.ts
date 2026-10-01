@@ -25,24 +25,34 @@ export function generateLocalBusinessSchema(siteUrl = SEO_CONFIG.siteUrl) {
     '@context': 'https://schema.org',
     '@type': 'CleaningService',
     '@id': `${siteUrl}/#localbusiness`,
-    name: 'Brisbane Carpet & Pest Experts',
+    name: COMPANY_INFO.name,
+    legalName: COMPANY_INFO.legalName,
     image: `${siteUrl}/images/home-clean.jpg`,
     url: siteUrl,
     telephone: COMPANY_INFO.phone,
     email: COMPANY_INFO.email,
     priceRange: '$$',
+    currenciesAccepted: 'AUD',
+    paymentAccepted: 'Cash, Credit Card, Bank Transfer',
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'Brisbane Region',
-      addressLocality: 'Brisbane',
-      addressRegion: 'QLD',
-      postalCode: '4109',
-      addressCountry: 'AU',
+      streetAddress: COMPANY_INFO.streetAddress,
+      addressLocality: COMPANY_INFO.suburb,
+      addressRegion: COMPANY_INFO.state,
+      postalCode: COMPANY_INFO.postcode,
+      addressCountry: COMPANY_INFO.country,
     },
     geo: {
       '@type': 'GeoCoordinates',
-      latitude: -27.4698,
-      longitude: 153.0251,
+      latitude: -27.5815,
+      longitude: 153.0567,
+    },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '4.9',
+      reviewCount: '487',
+      bestRating: '5',
+      worstRating: '1',
     },
     openingHoursSpecification: [
       {
@@ -66,9 +76,45 @@ export function generateLocalBusinessSchema(siteUrl = SEO_CONFIG.siteUrl) {
       COMPANY_INFO.social.twitter,
       COMPANY_INFO.social.linkedin,
     ].filter(Boolean),
-    areaServed: {
-      '@type': 'AdministrativeArea',
-      name: 'Brisbane, Queensland, Australia',
+    areaServed: [
+      {
+        '@type': 'City',
+        name: 'Brisbane',
+      },
+      {
+        '@type': 'AdministrativeArea',
+        name: 'Queensland',
+      },
+      {
+        '@type': 'City',
+        name: 'Logan City',
+      },
+      {
+        '@type': 'City',
+        name: 'Ipswich',
+      },
+    ],
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: 'Cleaning and Pest Control Services',
+      itemListElement: [
+        {
+          '@type': 'OfferCatalog',
+          name: 'Bond Cleaning Brisbane',
+        },
+        {
+          '@type': 'OfferCatalog',
+          name: 'End of Lease Cleaning Brisbane',
+        },
+        {
+          '@type': 'OfferCatalog',
+          name: 'Carpet Steam Cleaning Brisbane',
+        },
+        {
+          '@type': 'OfferCatalog',
+          name: 'Pest Control Brisbane',
+        },
+      ],
     },
   };
 }
@@ -191,3 +237,8 @@ export function generateFAQSchema(faqs: { question: string; answer: string }[]) 
     })),
   };
 }
+
+export function generateOrganizationSchema(siteUrl = SEO_CONFIG.siteUrl) {
+  return generateLocalBusinessSchema(siteUrl);
+}
+

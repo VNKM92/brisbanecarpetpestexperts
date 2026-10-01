@@ -3,6 +3,7 @@ import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import JsonLd from "@/components/JsonLd";
 import { generateBreadcrumbSchema } from "@/lib/seo-schema";
+import { getPageMetadata } from "@/lib/metadata";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -21,23 +22,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: "Page Not Found | Brisbane Carpet & Pest Experts" };
   }
 
-  const title = page.metaTitle || `${page.title} | Brisbane Carpet & Pest Experts`;
-  const description = page.metaDesc || `Information on ${page.title}`;
+  const focusKeyword = page.metaKeywords?.split(",")[0]?.trim() || `${page.title.toLowerCase()} brisbane`;
 
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      type: "website",
-    },
-    twitter: {
-      card: "summary",
-      title,
-      description,
-    },
-  };
+  return getPageMetadata({
+    slug,
+    path: `/${slug}`,
+    focusKeyword,
+    defaultTitle: page.metaTitle || `${page.title} | Brisbane Carpet & Pest Experts`,
+    defaultDescription: page.metaDesc || `Information on ${page.title} by Brisbane Carpet & Pest Experts.`,
+    type: "website",
+  });
 }
 
 export const revalidate = 60;

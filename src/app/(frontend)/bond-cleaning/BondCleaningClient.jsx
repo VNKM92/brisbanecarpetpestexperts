@@ -22,7 +22,7 @@ export default function BondCleaningClient() {
                 Home Clean
                 </h1>
                 <p className="text-gray-600 mt-4 max-w-md">
-                Experience a spotless home with Qleen’s professional cleaning services.
+                Experience a spotless home with Brisbane Carpet & Pest Experts' professional cleaning services.
                 </p>
             </motion.div>
 
@@ -48,7 +48,7 @@ export default function BondCleaningClient() {
             <div className="md:w-1/2 space-y-6">
                 <h3 className="text-orange-500 italic font-semibold">About us</h3>
                 <h1 className="text-5xl md:text-6xl font-bold leading-tight">
-                Honest. Simple. <span className="text-green-600">Qleen.</span>
+                Honest. Simple. <span className="text-green-600">Spotless.</span>
                 </h1>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10">
                 <div>

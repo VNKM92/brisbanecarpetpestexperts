@@ -5,6 +5,7 @@ import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import JsonLd from "@/components/JsonLd";
 import { generateServiceSchema, generateBreadcrumbSchema } from "@/lib/seo-schema";
+import { getPageMetadata } from "@/lib/metadata";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -24,26 +25,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: "Service Not Found | Brisbane Carpet & Pest Experts" };
   }
 
-  const title = service.metaTitle || `${service.name} | Brisbane Cleaning Experts`;
-  const description = service.metaDesc || service.shortDesc || `Professional ${service.name} in Brisbane. Quality guaranteed.`;
-  const image = service.heroImage || service.icon || "/images/home-clean.jpg";
+  const focusKeyword = service.metaKeywords?.split(",")[0]?.trim() || `${service.name.toLowerCase()} brisbane`;
 
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      images: [{ url: image }],
-      type: "website",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: [image],
-    },
-  };
+  return getPageMetadata({
+    serviceSlug: slug,
+    slug,
+    path: `/services/${slug}`,
+    focusKeyword,
+    defaultTitle: service.metaTitle || `${service.name} Brisbane | Brisbane Carpet & Pest Experts`,
+    defaultDescription: service.metaDesc || service.shortDesc || `Professional ${service.name} in Brisbane. 100% Bond Back and Satisfaction Guaranteed.`,
+    image: service.heroImage || service.icon || "/images/home-clean.jpg",
+    type: "website",
+  });
 }
 
 export const revalidate = 60;

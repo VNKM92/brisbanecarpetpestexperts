@@ -1,15 +1,23 @@
 import React from "react";
 import { getPageMetadata } from "@/lib/metadata";
 import JsonLd from "@/components/JsonLd";
-import { generateBreadcrumbSchema } from "@/lib/seo-schema";
+import { generateBreadcrumbSchema, generateOrganizationSchema } from "@/lib/seo-schema";
 
 export async function generateMetadata() {
   return getPageMetadata({
     slug: "about-us",
-    defaultTitle: "About Us | Brisbane Carpet & Pest Experts",
+    focusKeyword: "carpet and pest cleaning experts brisbane",
+    defaultTitle: "About Brisbane Carpet & Pest Experts | Trusted Cleaning & Pest Control",
     defaultDescription:
-      "Learn about Brisbane Carpet & Pest Experts. Over 10 years of professional cleaning excellence, certified technicians, and 100% satisfaction guarantee.",
+      "Learn about Brisbane Carpet & Pest Experts. Brisbane's leading bond cleaning, carpet steam cleaning, and pest management team with 10+ years experience.",
     path: "/about-us",
+    keywords: [
+      "about brisbane carpet pest experts",
+      "trusted cleaners brisbane",
+      "certified carpet cleaners brisbane",
+      "licensed pest controllers brisbane",
+      "bond cleaning company brisbane"
+    ]
   });
 }
 
@@ -23,9 +31,12 @@ export default function AboutUsLayout({
     { name: "About Us", url: "/about-us" },
   ]);
 
+  const organization = generateOrganizationSchema();
+
   return (
     <>
       <JsonLd data={breadcrumbs} />
+      <JsonLd data={organization} />
       <div>{children}</div>
     </>
   );

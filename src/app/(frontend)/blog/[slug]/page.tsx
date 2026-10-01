@@ -5,6 +5,7 @@ import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { getBlogPostBySlug, getAllBlogPosts } from "../data";
 import BlogCommentForm from "../components/BlogCommentForm";
+import { getPageMetadata } from "@/lib/metadata";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -25,26 +26,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: "Blog Article Not Found | Brisbane Carpet & Pest Experts" };
   }
 
-  const title = (post as any).metaTitle || post.title;
-  const description = (post as any).metaDesc || post.excerpt || "";
-  const image = (post as any).featuredImg || (post as any).image || "/images/og-image.jpg";
+  const focusKeyword = (post as any).metaKeywords?.split(",")[0]?.trim() || post.title.toLowerCase();
 
-  return {
-    title: `${title} | Brisbane Carpet & Pest Experts`,
-    description,
-    openGraph: {
-      title,
-      description,
-      images: [{ url: image }],
-      type: "article",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: [image],
-    },
-  };
+  return getPageMetadata({
+    blogSlug: slug,
+    slug,
+    path: `/blog/${slug}`,
+    focusKeyword,
+    defaultTitle: (post as any).metaTitle || `${post.title} | Brisbane Carpet & Pest Experts`,
+    defaultDescription: (post as any).metaDesc || post.excerpt || "",
+    image: (post as any).featuredImg || (post as any).image || "/assets/blog/pages/carpet-and-pest-cleaning.jpg",
+    type: "article",
+  });
 }
 
 export default async function BlogPostPage({ params }: Props) {
