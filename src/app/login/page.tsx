@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   ShieldCheck,
@@ -12,6 +12,8 @@ import {
   AlertCircle,
   CheckCircle2,
   KeyRound,
+  User,
+  Wrench,
   Sparkles,
 } from "lucide-react";
 import Link from "next/link";
@@ -19,14 +21,31 @@ import Link from "next/link";
 function LoginFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const returnUrl = searchParams.get("returnUrl") || "/admin";
+  const returnUrl = searchParams.get("returnUrl");
 
-  const [email, setEmail] = useState("admin@brisbane.com");
-  const [password, setPassword] = useState("Admin@123456");
+  const [activeTab, setActiveTab] = useState<"customer" | "admin" | "employee">("customer");
+  const [email, setEmail] = useState("john.doe@example.com");
+  const [password, setPassword] = useState("Customer@123");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+
+  // Quick fill preset credentials
+  const handleSelectTab = (tab: "customer" | "admin" | "employee") => {
+    setActiveTab(tab);
+    setError("");
+    if (tab === "admin") {
+      setEmail("admin@brisbane.com");
+      setPassword("Admin@123456");
+    } else if (tab === "employee") {
+      setEmail("tech@brisbane.com");
+      setPassword("Staff@123456");
+    } else {
+      setEmail("john.doe@example.com");
+      setPassword("Customer@123");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,13 +68,26 @@ function LoginFormContent() {
 
       if (res.ok && data.success) {
         setSuccess(true);
-        // Seamless redirect to destination
+        const roleSlug = data.data?.user?.roleSlug;
+
+        // Intelligent role redirection
+        let targetDestination = returnUrl;
+        if (!targetDestination) {
+          if (roleSlug === "super-admin" || roleSlug === "admin" || roleSlug === "manager") {
+            targetDestination = "/admin";
+          } else if (roleSlug === "staff") {
+            targetDestination = "/employee";
+          } else {
+            targetDestination = "/dashboard";
+          }
+        }
+
         setTimeout(() => {
-          router.push(returnUrl);
+          router.push(targetDestination);
           router.refresh();
         }, 600);
       } else {
-        setError(data.message || "Invalid email or password. Please verify credentials.");
+        setError(data.message || "Invalid credentials. Please verify your email and password.");
       }
     } catch (err) {
       setError("Network error. Unable to reach authentication server.");
@@ -65,30 +97,67 @@ function LoginFormContent() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-center items-center p-4 relative overflow-hidden font-sans selection:bg-emerald-500 selection:text-white">
-      {/* Background Ambience / Glow */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-emerald-600/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-32 right-1/4 w-[400px] h-[400px] bg-teal-600/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-center items-center p-4 relative overflow-hidden font-sans selection:bg-blue-500 selection:text-white">
+      {/* Background Ambience Glow */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-32 right-1/4 w-[400px] h-[400px] bg-emerald-600/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* Login Card */}
-      <div className="w-full max-w-md relative z-10">
+      <div className="w-full max-w-md relative z-10 my-6">
         {/* Brand Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-400 text-white shadow-xl shadow-emerald-950/50 mb-4 border border-emerald-400/20">
+        <div className="text-center mb-6">
+          <Link href="/" className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-emerald-400 text-white shadow-xl shadow-blue-950/50 mb-3 border border-blue-400/20 hover:scale-105 transition-transform">
             <ShieldCheck size={36} className="text-white drop-shadow-sm" />
-          </div>
+          </Link>
           <h1 className="text-2xl font-bold text-white tracking-tight">
-            Brisbane Management Console
+            Brisbane Carpet & Pest Experts
           </h1>
-          <p className="text-slate-400 text-xs mt-1.5 flex items-center justify-center gap-1.5">
-            <span>Enterprise Access Control</span>
+          <p className="text-slate-400 text-xs mt-1 flex items-center justify-center gap-1.5">
+            <span>Secure Portal Access</span>
             <span className="w-1 h-1 bg-emerald-500 rounded-full"></span>
-            <span className="text-emerald-400 font-medium">v2.4 Production</span>
+            <span className="text-emerald-400 font-medium">Production Ready</span>
           </p>
         </div>
 
         {/* Form Container */}
-        <div className="bg-slate-900/90 border border-slate-800 backdrop-blur-xl rounded-2xl p-8 shadow-2xl space-y-6">
+        <div className="bg-slate-900/90 border border-slate-800 backdrop-blur-xl rounded-2xl p-6 sm:p-8 shadow-2xl space-y-5">
+          {/* Persona / Portal Tabs */}
+          <div className="grid grid-cols-3 p-1 bg-slate-950/90 rounded-xl border border-slate-800 text-xs font-semibold">
+            <button
+              type="button"
+              onClick={() => handleSelectTab("customer")}
+              className={`py-2 px-1 rounded-lg transition-all flex items-center justify-center gap-1 ${
+                activeTab === "customer"
+                  ? "bg-blue-600 text-white shadow-md"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <User size={13} /> Customer
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSelectTab("employee")}
+              className={`py-2 px-1 rounded-lg transition-all flex items-center justify-center gap-1 ${
+                activeTab === "employee"
+                  ? "bg-emerald-600 text-white shadow-md"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <Wrench size={13} /> Staff / Tech
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSelectTab("admin")}
+              className={`py-2 px-1 rounded-lg transition-all flex items-center justify-center gap-1 ${
+                activeTab === "admin"
+                  ? "bg-purple-600 text-white shadow-md"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <ShieldCheck size={13} /> Admin
+            </button>
+          </div>
+
           {error && (
             <div className="p-3.5 bg-red-950/60 border border-red-800/80 rounded-xl text-red-200 text-xs flex items-start gap-2.5 animate-shake">
               <AlertCircle size={16} className="text-red-400 flex-shrink-0 mt-0.5" />
@@ -99,59 +168,57 @@ function LoginFormContent() {
           {success && (
             <div className="p-3.5 bg-emerald-950/60 border border-emerald-800/80 rounded-xl text-emerald-200 text-xs flex items-start gap-2.5">
               <CheckCircle2 size={16} className="text-emerald-400 flex-shrink-0 mt-0.5" />
-              <span>Authentication successful! Launching workspace...</span>
+              <span>Authentication successful! Accessing your portal...</span>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
-                Work Email
+              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                Email Address
               </label>
               <div className="relative">
-                <Mail
-                  size={17}
-                  className="absolute left-3.5 top-3 text-slate-500 pointer-events-none"
-                />
+                <Mail size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
                 <input
                   type="email"
                   required
-                  autoComplete="email"
+                  placeholder="name@domain.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@brisbane.com"
-                  className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-600 transition"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-950/60 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                 />
               </div>
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400">
+              <div className="flex justify-between items-center mb-2">
+                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Password
                 </label>
-                <span className="text-[11px] text-slate-500">256-bit AES Protected</span>
+                <button
+                  type="button"
+                  onClick={() => alert("Please contact Super Admin at 0434 061 188 for password reset assistance.")}
+                  className="text-xs text-blue-400 hover:underline"
+                >
+                  Forgot password?
+                </button>
               </div>
               <div className="relative">
-                <Lock
-                  size={17}
-                  className="absolute left-3.5 top-3 text-slate-500 pointer-events-none"
-                />
+                <Lock size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
                 <input
                   type={showPassword ? "text" : "password"}
                   required
-                  autoComplete="current-password"
+                  placeholder="••••••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••••••"
-                  className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 rounded-xl pl-10 pr-10 py-2.5 text-sm text-white placeholder-slate-600 transition font-mono"
+                  className="w-full pl-10 pr-12 py-2.5 bg-slate-950/60 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-3 text-slate-500 hover:text-slate-300"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
                 >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>
@@ -159,56 +226,58 @@ function LoginFormContent() {
             <button
               type="submit"
               disabled={loading || success}
-              className="w-full mt-2 py-3 px-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:opacity-50 text-white font-semibold text-sm rounded-xl shadow-lg shadow-emerald-950/60 transition flex items-center justify-center gap-2 group cursor-pointer"
+              className={`w-full py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 shadow-lg transition-all ${
+                activeTab === "customer"
+                  ? "bg-blue-600 hover:bg-blue-500 text-white shadow-blue-950/50"
+                  : activeTab === "employee"
+                  ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-950/50"
+                  : "bg-purple-600 hover:bg-purple-500 text-white shadow-purple-950/50"
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {loading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>Verifying Credentials...</span>
-                </>
-              ) : success ? (
-                <>
-                  <CheckCircle2 size={16} />
-                  <span>Redirecting...</span>
-                </>
+                <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
-                  <span>Sign In to Admin Panel</span>
-                  <ArrowRight size={16} className="group-hover:translate-x-0.5 transition" />
+                  <span>Sign In to Dashboard</span>
+                  <ArrowRight size={16} />
                 </>
               )}
             </button>
           </form>
 
-          {/* Quick Demo Credentials Info */}
-          <div className="pt-4 border-t border-slate-800/80">
-            <div className="flex items-center justify-between text-[11px] text-slate-400 bg-slate-950/60 p-2.5 rounded-lg border border-slate-800">
-              <div className="flex items-center gap-1.5">
-                <KeyRound size={13} className="text-emerald-400" />
-                <span>Default: <strong className="text-slate-200">admin@brisbane.com</strong></span>
-              </div>
+          {/* Quick Demo Fill Helper */}
+          <div className="p-3 bg-slate-950/50 border border-slate-800/80 rounded-xl text-[11px] text-slate-400 space-y-1">
+            <div className="flex items-center gap-1.5 text-blue-400 font-semibold mb-1">
+              <KeyRound size={12} />
+              <span>Demo Quick-Fill Options:</span>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
               <button
                 type="button"
-                onClick={() => {
-                  setEmail("admin@brisbane.com");
-                  setPassword("Admin@123456");
-                }}
-                className="text-emerald-400 hover:text-emerald-300 text-[10px] font-semibold underline"
+                onClick={() => handleSelectTab("customer")}
+                className="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[10px]"
               >
-                Auto Fill
+                Customer: john.doe@example.com
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSelectTab("admin")}
+                className="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[10px]"
+              >
+                Super Admin: admin@brisbane.com
               </button>
             </div>
           </div>
-        </div>
 
-        {/* Footer Link */}
-        <div className="text-center mt-6">
-          <Link
-            href="/"
-            className="text-xs text-slate-500 hover:text-slate-300 transition inline-flex items-center gap-1"
-          >
-            <span>← Back to Public Website</span>
-          </Link>
+          {/* New User Register CTA */}
+          <div className="pt-4 border-t border-slate-800 text-center text-xs text-slate-400">
+            <p>
+              New customer or technician?{" "}
+              <Link href="/register" className="text-blue-400 hover:underline font-semibold">
+                Create an account
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -217,13 +286,7 @@ function LoginFormContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">
-          <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      }
-    >
+    <Suspense fallback={<div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">Loading...</div>}>
       <LoginFormContent />
     </Suspense>
   );

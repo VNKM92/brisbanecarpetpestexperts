@@ -10,36 +10,39 @@ export type ActivityAction =
   | 'STATUS_CHANGE'
   | 'SETTINGS_CHANGE'
   | 'EMAIL_SENT'
-  | 'WHATSAPP_SENT';
+  | 'WHATSAPP_SENT'
+  | 'APPROVAL'
+  | 'PAYMENT'
+  | string;
 
 interface LogActivityParams {
-  userId?: string;
-  userName?: string;
+  userId?: string | null;
+  userName?: string | null;
   action: ActivityAction;
   module: string;
-  entityId?: string;
-  details?: Record<string, any> | string;
-  ipAddress?: string;
-  userAgent?: string;
+  entityId?: string | null;
+  details?: Record<string, any> | string | null;
+  ipAddress?: string | null;
+  userAgent?: string | null;
 }
 
 export async function logActivity(params: LogActivityParams) {
   try {
     const detailsString =
-      typeof params.details === 'object'
+      typeof params.details === 'object' && params.details !== null
         ? JSON.stringify(params.details)
-        : params.details;
+        : params.details || undefined;
 
     await prisma.activityLog.create({
       data: {
-        userId: params.userId,
+        userId: params.userId || undefined,
         userName: params.userName || 'System',
         action: params.action,
         module: params.module,
-        entityId: params.entityId,
+        entityId: params.entityId || undefined,
         details: detailsString,
-        ipAddress: params.ipAddress,
-        userAgent: params.userAgent,
+        ipAddress: params.ipAddress || undefined,
+        userAgent: params.userAgent || undefined,
       },
     });
   } catch (error) {

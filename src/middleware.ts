@@ -15,15 +15,39 @@ export const config = {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get('admin_token')?.value;
+
+  // Handle CORS OPTIONS preflight requests for external websites calling APIs
+  if (request.method === 'OPTIONS') {
+    return new NextResponse(null, {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, X-CSRF-Token',
+        'Access-Control-Max-Age': '86400',
+      },
+    });
+  }
+
+  let token =
+    request.cookies.get('admin_token')?.value ||
+    request.cookies.get('customer_token')?.value ||
+    request.cookies.get('auth_token')?.value;
+
+  const authHeader = request.headers.get('authorization');
+  if (!token && authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.substring(7);
+  }
 
   let isAuthenticated = false;
+  let userRoleSlug = 'customer';
 
   if (token) {
     try {
       const { payload } = await jwtVerify(token, encodedSecret);
       if (payload && payload.userId) {
         isAuthenticated = true;
+        userRoleSlug = (payload.roleSlug as string) || 'customer';
       }
     } catch (err) {
       isAuthenticated = false;
@@ -40,14 +64,30 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith('/admin')) {
     if (!isAuthenticated) {
       const loginUrl = new URL('/login', request.url);
-      if (pathname !== '/admin') {
-        loginUrl.searchParams.set('returnUrl', pathname);
-      }
+      loginUrl.searchParams.set('returnUrl', pathname);
       return NextResponse.redirect(loginUrl);
     }
   }
 
-  // 3. Protect Admin API Routes: /api/admin/*
+  // 3. Protect Customer Dashboard Route: /dashboard
+  if (pathname.startsWith('/dashboard')) {
+    if (!isAuthenticated) {
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('returnUrl', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+  }
+
+  // 4. Protect Employee Route: /employee
+  if (pathname.startsWith('/employee')) {
+    if (!isAuthenticated) {
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('returnUrl', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+  }
+
+  // 5. Protect Admin API Routes: /api/admin/*
   if (pathname.startsWith('/api/admin')) {
     if (!isAuthenticated) {
       return NextResponse.json(
@@ -60,20 +100,13 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 4. If already authenticated and visits /login, redirect to /admin
-  if (pathname === '/login' && isAuthenticated) {
-    const returnUrl = request.nextUrl.searchParams.get('returnUrl') || '/admin';
-    return NextResponse.redirect(new URL(returnUrl, request.url));
-  }
-
-  // 5. Build Response with Enterprise Security Headers
+  // 6. Build Response with Enterprise Security Headers
   const response = NextResponse.next();
 
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('X-Frame-Options', 'SAMEORIGIN');
   response.headers.set('X-XSS-Protection', '1; mode=block');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
 
   return response;
 }

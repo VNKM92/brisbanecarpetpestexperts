@@ -27,6 +27,13 @@ import {
   ExternalLink,
   ChevronRight,
   Bell,
+  Clock,
+  Briefcase,
+  Receipt,
+  UserCog,
+  Users,
+  CreditCard,
+  BarChart3,
 } from "lucide-react";
 
 interface AdminUser {
@@ -41,11 +48,21 @@ const NAV_ITEMS = [
   { group: "Overview", items: [
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
   ]},
-  { group: "Operations", items: [
-    { name: "Enquiries", href: "/admin/enquiries", icon: Inbox },
-    { name: "Bookings", href: "/admin/bookings", icon: CalendarCheck },
+  { group: "Demand & Work Orders", items: [
+    { name: "Quotations & Approvals", href: "/admin/quotations", icon: Clock },
+    { name: "Crew & Work Assignments", href: "/admin/assignments", icon: Users },
+    { name: "Technician & Customer Reports", href: "/admin/reports", icon: BarChart3 },
+    { name: "Bookings Calendar", href: "/admin/bookings", icon: CalendarCheck },
+    { name: "Invoices & Billing", href: "/admin/invoices", icon: Receipt },
     { name: "Orders", href: "/admin/orders", icon: ShoppingBag },
+    { name: "Enquiries", href: "/admin/enquiries", icon: Inbox },
     { name: "Customers", href: "/admin/customers", icon: Users2 },
+  ]},
+  { group: "Human Resources (HRM)", items: [
+    { name: "HRM & Field Staff", href: "/admin/hrm", icon: UserCog },
+  ]},
+  { group: "Payment Gateways", items: [
+    { name: "Payment Gateways & Keys", href: "/admin/payment-settings", icon: CreditCard },
   ]},
   { group: "Content & Catalog", items: [
     { name: "Homepage CMS", href: "/admin/homepage", icon: Sparkles },
@@ -58,7 +75,7 @@ const NAV_ITEMS = [
   ]},
   { group: "Communications", items: [
     { name: "Email Logs", href: "/admin/emails", icon: Mail },
-    { name: "WhatsApp", href: "/admin/whatsapp", icon: PhoneCall },
+    { name: "WhatsApp & SMS", href: "/admin/whatsapp", icon: PhoneCall },
   ]},
   { group: "Administration", items: [
     { name: "Users", href: "/admin/users", icon: UserCheck },
@@ -119,128 +136,130 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-slate-400 text-sm">Authenticating Brisbane Admin...</p>
+          <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-slate-400 text-xs tracking-wider uppercase font-medium">
+            Verifying Admin Credentials...
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 font-sans flex">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex font-sans selection:bg-emerald-500 selection:text-white">
       {/* Mobile Backdrop */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 lg:hidden"
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar Navigation */}
       <aside
-        className={`fixed lg:static top-0 bottom-0 left-0 w-64 bg-slate-950 border-r border-slate-800 flex flex-col z-50 transform transition-transform duration-200 ease-in-out ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        className={`fixed top-0 bottom-0 left-0 z-50 w-72 bg-slate-900 border-r border-slate-800 flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        {/* Logo / Brand Header */}
-        <div className="h-16 flex items-center justify-between px-5 border-b border-slate-800 bg-slate-950">
+        {/* Brand Header */}
+        <div className="h-16 flex items-center justify-between px-6 border-b border-slate-800 bg-slate-900/50">
           <Link href="/admin" className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center font-bold text-white shadow-md">
-              B
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-white shadow-lg shadow-emerald-950">
+              <ShieldCheck size={20} />
             </div>
             <div>
-              <span className="font-bold text-white text-base tracking-tight">Brisbane</span>
-              <span className="text-xs ml-1.5 px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800/60 font-mono">
-                Admin
+              <span className="font-bold text-sm tracking-tight text-white block">
+                Brisbane Carpet
+              </span>
+              <span className="text-[10px] uppercase tracking-wider text-emerald-400 font-semibold block">
+                Super Admin Panel
               </span>
             </div>
           </Link>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden text-slate-400 hover:text-white p-1"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 lg:hidden"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
         {/* Navigation Items */}
-        <div className="flex-1 overflow-y-auto px-3 py-4 space-y-6 custom-scrollbar">
-          {NAV_ITEMS.map((section, idx) => (
-            <div key={idx}>
-              <p className="px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">
-                {section.group}
-              </p>
-              <nav className="space-y-1">
-                {section.items.map((item) => {
+        <div className="flex-1 overflow-y-auto py-4 px-3 space-y-6 custom-scrollbar">
+          {NAV_ITEMS.map((group) => (
+            <div key={group.group} className="space-y-1">
+              <div className="px-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                {group.group}
+              </div>
+              <div className="space-y-0.5 pt-1">
+                {group.items.map((item) => {
+                  const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
                   const Icon = item.icon;
-                  const isActive =
-                    item.href === "/admin"
-                      ? pathname === "/admin"
-                      : pathname.startsWith(item.href);
-
                   return (
                     <Link
                       key={item.href}
                       href={item.href}
                       onClick={() => setSidebarOpen(false)}
-                      className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
                         isActive
-                          ? "bg-emerald-500 text-white shadow-sm"
-                          : "text-slate-300 hover:bg-slate-900 hover:text-white"
+                          ? "bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20 shadow-sm"
+                          : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
                       }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <Icon size={18} className={isActive ? "text-white" : "text-slate-400"} />
-                        <span>{item.name}</span>
-                      </div>
-                      {isActive && <ChevronRight size={14} className="opacity-75" />}
+                      <Icon size={16} className={isActive ? "text-emerald-400" : "text-slate-400"} />
+                      <span>{item.name}</span>
+                      {isActive && (
+                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                      )}
                     </Link>
                   );
                 })}
-              </nav>
+              </div>
             </div>
           ))}
         </div>
 
-        {/* Sidebar Footer User Info */}
-        <div className="p-3 border-t border-slate-800 bg-slate-950/60">
-          <div className="flex items-center justify-between p-2 rounded-lg bg-slate-900/80 border border-slate-800">
-            <div className="flex items-center gap-2.5 overflow-hidden">
-              <div className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs uppercase flex-shrink-0">
-                {currentUser?.name?.charAt(0) || "A"}
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-semibold text-white truncate">{currentUser?.name}</p>
-                <p className="text-[10px] text-emerald-400 truncate">{currentUser?.role}</p>
-              </div>
+        {/* User Card / Footer */}
+        <div className="p-3 border-t border-slate-800 bg-slate-900/50">
+          <div className="flex items-center gap-3 p-2 rounded-xl bg-slate-800/50 border border-slate-700/50">
+            <div className="w-8 h-8 rounded-full bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-xs">
+              {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : "A"}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold text-white truncate leading-tight">
+                {currentUser?.name || "Administrator"}
+              </p>
+              <p className="text-[10px] text-emerald-400 truncate">
+                {currentUser?.role || "Super Admin"}
+              </p>
             </div>
             <button
               onClick={handleLogout}
               title="Sign Out"
-              className="text-slate-400 hover:text-red-400 p-1.5 rounded hover:bg-slate-800 transition"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-slate-700/50 transition-colors"
             >
-              <LogOut size={16} />
+              <LogOut size={15} />
             </button>
           </div>
         </div>
       </aside>
 
-      {/* Main Wrapper */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0 lg:pl-72">
         {/* Top Navbar */}
-        <header className="h-16 bg-slate-950 border-b border-slate-800 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-30">
+        <header className="h-16 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden text-slate-400 hover:text-white p-2 rounded-md hover:bg-slate-900"
+              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 lg:hidden"
             >
               <Menu size={20} />
             </button>
-            <div className="hidden sm:flex items-center text-xs text-slate-400 gap-2">
+            <div className="hidden sm:flex items-center gap-2 text-xs text-slate-400">
               <span>Admin Console</span>
-              <span>/</span>
-              <span className="text-emerald-400 font-medium capitalize">
-                {pathname.replace("/admin/", "").replace("/admin", "Overview") || "Dashboard"}
+              <ChevronRight size={14} />
+              <span className="text-slate-200 capitalize font-medium">
+                {pathname.split("/")[2] || "Dashboard"}
               </span>
             </div>
           </div>
@@ -249,25 +268,30 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Link
               href="/"
               target="_blank"
-              className="flex items-center gap-1.5 text-xs text-slate-300 hover:text-white bg-slate-900 hover:bg-slate-800 border border-slate-700/60 px-3 py-1.5 rounded-lg transition"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition-colors"
             >
-              <span>View Live Website</span>
               <ExternalLink size={13} />
+              <span>Live Website</span>
             </Link>
 
             <Link
-              href="/admin/enquiries"
-              className="relative text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-900 transition"
-              title="Recent Enquiries"
+              href="/dashboard"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 text-xs font-medium border border-blue-500/30 transition-colors"
             >
-              <Bell size={18} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-emerald-500 rounded-full"></span>
+              <span>Customer Portal</span>
+            </Link>
+
+            <Link
+              href="/employee"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 text-xs font-medium border border-emerald-500/30 transition-colors"
+            >
+              <span>Field Tech View</span>
             </Link>
           </div>
         </header>
 
-        {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-900">
+        {/* Page Content Body */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
           {children}
         </main>
       </div>

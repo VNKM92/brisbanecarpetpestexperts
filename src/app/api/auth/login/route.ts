@@ -15,8 +15,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const cleanEmail = email.toLowerCase().trim();
+
     const user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase().trim() },
+      where: { email: cleanEmail },
       include: {
         role: {
           include: {
@@ -25,12 +27,14 @@ export async function POST(request: NextRequest) {
             },
           },
         },
+        customer: true,
+        employee: true,
       },
     });
 
     if (!user || user.status !== 'ACTIVE') {
       return NextResponse.json(
-        { success: false, message: 'Invalid credentials or inactive account' },
+        { success: false, message: 'Invalid credentials or account is suspended' },
         { status: 401 }
       );
     }
@@ -44,13 +48,19 @@ export async function POST(request: NextRequest) {
     }
 
     const permissions = user.role?.permissions.map((rp) => rp.permission.slug) || [];
+    const roleSlug = user.role?.slug || 'customer';
+    const roleName = user.role?.name || 'Customer';
+
     const token = signToken({
       userId: user.id,
       email: user.email,
       name: user.name,
-      role: user.role?.name || 'Staff',
-      roleSlug: user.role?.slug || 'staff',
+      phone: user.phone || user.customer?.phone || user.employee?.phone || null,
+      role: roleName,
+      roleSlug: roleSlug,
       permissions,
+      customerId: user.customer?.id || null,
+      employeeId: user.employee?.id || null,
     });
 
     // Log login activity
@@ -59,7 +69,7 @@ export async function POST(request: NextRequest) {
       userName: user.name,
       action: 'LOGIN',
       module: 'Auth',
-      details: { email: user.email, role: user.role?.name },
+      details: { email: user.email, role: roleName, roleSlug },
     });
 
     const response = NextResponse.json({
@@ -71,28 +81,35 @@ export async function POST(request: NextRequest) {
           id: user.id,
           name: user.name,
           email: user.email,
-          role: user.role?.name,
-          roleSlug: user.role?.slug,
+          phone: user.phone || user.customer?.phone || user.employee?.phone,
+          role: roleName,
+          roleSlug: roleSlug,
           avatar: user.avatar,
           permissions,
+          customerId: user.customer?.id,
+          employeeId: user.employee?.id,
         },
       },
     });
 
-    // Set HTTP-only Cookie
-    response.cookies.set('admin_token', token, {
+    // Set HTTP-only Cookie across auth tokens
+    const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: 'lax' as const,
       path: '/',
       maxAge: 60 * 60 * 24 * 7, // 7 days
-    });
+    };
+
+    response.cookies.set('admin_token', token, cookieOptions);
+    response.cookies.set('customer_token', token, cookieOptions);
+    response.cookies.set('auth_token', token, cookieOptions);
 
     return response;
   } catch (error: any) {
     console.error('Login error:', error);
     return NextResponse.json(
-      { success: false, message: 'Internal server error' },
+      { success: false, message: 'Internal server error during login' },
       { status: 500 }
     );
   }

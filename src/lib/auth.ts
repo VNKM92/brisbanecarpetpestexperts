@@ -10,9 +10,12 @@ export interface TokenPayload {
   userId: string;
   email: string;
   name: string;
+  phone?: string | null;
   role: string;
   roleSlug: string;
   permissions: string[];
+  customerId?: string | null;
+  employeeId?: string | null;
 }
 
 export async function hashPassword(password: string): Promise<string> {
@@ -44,8 +47,11 @@ export async function getAuthenticatedUser(request: NextRequest): Promise<TokenP
   if (authHeader && authHeader.startsWith('Bearer ')) {
     token = authHeader.substring(7);
   } else {
-    // Check cookies
-    const cookieToken = request.cookies.get('admin_token')?.value;
+    // Check cookies (admin_token, customer_token, auth_token)
+    const cookieToken =
+      request.cookies.get('admin_token')?.value ||
+      request.cookies.get('customer_token')?.value ||
+      request.cookies.get('auth_token')?.value;
     if (cookieToken) {
       token = cookieToken;
     }
@@ -67,6 +73,8 @@ export async function getAuthenticatedUser(request: NextRequest): Promise<TokenP
           },
         },
       },
+      customer: true,
+      employee: true,
     },
   });
 
@@ -78,8 +86,11 @@ export async function getAuthenticatedUser(request: NextRequest): Promise<TokenP
     userId: user.id,
     email: user.email,
     name: user.name,
-    role: user.role?.name || 'Staff',
-    roleSlug: user.role?.slug || 'staff',
+    phone: user.phone || user.customer?.phone || user.employee?.phone || null,
+    role: user.role?.name || 'Customer',
+    roleSlug: user.role?.slug || 'customer',
     permissions,
+    customerId: user.customer?.id || null,
+    employeeId: user.employee?.id || null,
   };
 }

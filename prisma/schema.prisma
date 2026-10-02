@@ -14,18 +14,21 @@ datasource db {
 // ----------------------------------------------------
 
 model User {
-  id           String        @id @default(cuid())
-  name         String
-  email        String        @unique
-  passwordHash String
-  phone        String?
-  avatar       String?
-  status       String        @default("ACTIVE") // ACTIVE, INACTIVE, SUSPENDED
-  roleId       String?
-  role         Role?         @relation(fields: [roleId], references: [id], onDelete: SetNull)
-  activityLogs ActivityLog[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id            String         @id @default(cuid())
+  name          String
+  email         String         @unique
+  passwordHash  String
+  phone         String?
+  avatar        String?
+  status        String         @default("ACTIVE") // ACTIVE, INACTIVE, SUSPENDED
+  roleId        String?
+  role          Role?          @relation(fields: [roleId], references: [id], onDelete: SetNull)
+  customer      Customer?
+  employee      Employee?
+  notifications Notification[]
+  activityLogs  ActivityLog[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 }
 
 model Role {
@@ -61,22 +64,26 @@ model RolePermission {
 }
 
 // ----------------------------------------------------
-// 2. CRM, ENQUIRIES, BOOKINGS & ORDERS
+// 2. CRM, CUSTOMER, QUOTATIONS & BOOKINGS
 // ----------------------------------------------------
 
 model Customer {
-  id        String     @id @default(cuid())
-  name      String
-  email     String     @unique
-  phone     String?
-  address   String?
-  suburb    String?
-  postcode  String?
-  notes     String?
-  bookings  Booking[]
-  orders    Order[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  id           String               @id @default(cuid())
+  userId       String?              @unique
+  user         User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name         String
+  email        String               @unique
+  phone        String?
+  address      String?
+  suburb       String?
+  postcode     String?
+  notes        String?
+  bookings     Booking[]
+  orders       Order[]
+  invoices     Invoice[]
+  payments     PaymentTransaction[]
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
 }
 
 model Enquiry {
@@ -98,28 +105,64 @@ model Enquiry {
 }
 
 model Booking {
-  id             String    @id @default(cuid())
-  bookingNumber  String    @unique
-  customerId     String?
-  customer       Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
-  customerName   String
-  customerEmail  String
-  customerPhone  String
-  serviceId      String?
-  serviceName    String
-  serviceAddress String
-  scheduledDate  DateTime?
-  timeSlot       String? // e.g. "Morning", "During Business Hours", "Afternoon"
-  squareFootage  Int?
-  rooms          Int?
-  bathrooms      Int?
-  addons         String? // JSON string array of addons
-  totalPrice     Float     @default(0)
-  status         String    @default("PENDING") // PENDING, CONFIRMED, IN_PROGRESS, COMPLETED, CANCELLED
-  notes          String?
-  order          Order?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  id                 String               @id @default(cuid())
+  bookingNumber      String               @unique
+  customerId         String?
+  customer           Customer?            @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  customerName       String
+  customerEmail      String
+  customerPhone      String
+  serviceId          String?
+  serviceName        String
+  serviceAddress     String
+  suburb             String?
+  postcode           String?
+  scheduledDate      DateTime?
+  timeSlot           String?              // e.g. "Morning (8AM - 11AM)", "Midday (11AM - 2PM)", "Afternoon (2PM - 5PM)"
+  squareFootage      Int?
+  rooms              Int?
+  bathrooms          Int?
+  addons             String?              // JSON string array of addons
+  totalPrice         Float                @default(0)
+  approvedPrice      Float?
+  depositRequired    Float                @default(50.0) // Standard 50 AUD deposit
+  depositPaid        Float                @default(0.0)
+  balanceDue         Float                @default(0.0)
+  quoteStatus        String               @default("PENDING_APPROVAL") // PENDING_APPROVAL, APPROVED, REJECTED, CONVERTED
+  status             String               @default("PENDING") // PENDING, CONFIRMED, IN_PROGRESS, COMPLETED, CANCELLED
+  paymentStatus      String               @default("UNPAID") // UNPAID, DEPOSIT_PAID, FULLY_PAID, REFUNDED
+  paymentGateway     String?              // STRIPE, PAYPAL, POLI, PAYID, AFTERPAY, BANK_TRANSFER, CASH
+  notes              String?
+  adminNotes         String?
+  rejectionReason    String?
+  reminderSent2Days  Boolean              @default(false)
+  reminderSentDate   DateTime?
+  reminderMobileOpt  Boolean              @default(true)
+  reminderEmailOpt   Boolean              @default(true)
+  assignedEmployeeId String?
+  assignedEmployee   Employee?            @relation("PrimaryTechnician", fields: [assignedEmployeeId], references: [id], onDelete: SetNull)
+  crew               BookingCrewMember[]  // Crew of 1 to 5+ field specialists/cleaners
+  order              Order?
+  jobReport          JobReport?
+  invoices           Invoice[]
+  payments           PaymentTransaction[]
+  reminderLogs       ReminderLog[]
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+}
+
+model BookingCrewMember {
+  id          String    @id @default(cuid())
+  bookingId   String
+  booking     Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  employeeId  String
+  employee    Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  role        String    @default("Technician") // "Lead Specialist", "Steam Cleaning Specialist", "Pest Controller", "Bond Cleaner", "Quality Inspector", "Assistant"
+  isLead      Boolean   @default(false)
+  assignedAt  DateTime  @default(now())
+  notes       String?
+
+  @@unique([bookingId, employeeId])
 }
 
 model Order {
@@ -134,7 +177,7 @@ model Order {
   tax           Float     @default(0)
   totalAmount   Float
   paymentStatus String    @default("UNPAID") // UNPAID, PARTIAL, PAID, REFUNDED
-  paymentMethod String? // INVOICE, CARD, CASH, BANK_TRANSFER
+  paymentMethod String?   // INVOICE, CARD, CASH, BANK_TRANSFER
   paymentDate   DateTime?
   notes         String?
   createdAt     DateTime  @default(now())
@@ -142,7 +185,179 @@ model Order {
 }
 
 // ----------------------------------------------------
-// 3. SERVICES & CATEGORIES
+// 3. INVOICING & BILLING & PAYMENTS (AUSTRALIA GST READY)
+// ----------------------------------------------------
+
+model Invoice {
+  id              String               @id @default(cuid())
+  invoiceNumber   String               @unique
+  bookingId       String?
+  booking         Booking?             @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  customerId      String?
+  customer        Customer?            @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  customerName    String
+  customerEmail   String
+  customerPhone   String?
+  customerAddress String?
+  subtotal        Float                @default(0)
+  gstRate         Float                @default(10.0) // 10% Australia GST
+  gstAmount       Float                @default(0)
+  discount        Float                @default(0)
+  totalAmount     Float                @default(0)
+  depositPaid     Float                @default(0)
+  balanceDue      Float                @default(0)
+  status          String               @default("UNPAID") // DRAFT, SENT, PARTIAL, PAID, CANCELLED
+  paymentMethod   String?              // STRIPE, PAYPAL, POLI, PAYID, AFTERPAY, BANK_TRANSFER, CASH
+  issuedDate      DateTime             @default(now())
+  dueDate         DateTime?
+  notes           String?
+  terms           String?              @default("Payment due upon receipt. ABN: 45 892 103 441. Brisbane Carpet & Pest Experts.")
+  items           InvoiceItem[]
+  payments        PaymentTransaction[]
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+}
+
+model InvoiceItem {
+  id          String   @id @default(cuid())
+  invoiceId   String
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  description String
+  quantity    Int      @default(1)
+  unitPrice   Float    @default(0)
+  totalPrice  Float    @default(0)
+}
+
+model PaymentTransaction {
+  id                String    @id @default(cuid())
+  transactionNumber String    @unique
+  bookingId         String?
+  booking           Booking?  @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  invoiceId         String?
+  invoice           Invoice?  @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  customerId        String?
+  customer          Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  amount            Float
+  currency          String    @default("AUD")
+  paymentGateway    String    // STRIPE, PAYPAL, POLI, PAYID, AFTERPAY, BANK_TRANSFER, CASH
+  paymentType       String    @default("DEPOSIT") // DEPOSIT, FULL_PAYMENT, BALANCE_PAYMENT
+  status            String    @default("SUCCESS") // SUCCESS, PENDING, FAILED, REFUNDED
+  gatewayRef        String?   // Stripe Charge ID, PayPal Order ID, Bank Ref
+  payerEmail        String?
+  notes             String?
+  metadata          String?   // JSON details
+  createdAt         DateTime  @default(now())
+}
+
+// ----------------------------------------------------
+// 4. HRM & EMPLOYEE / FIELD TECHNICIAN MANAGEMENT
+// ----------------------------------------------------
+
+model Employee {
+  id               String              @id @default(cuid())
+  employeeCode     String              @unique // e.g. "EMP-101"
+  userId           String?             @unique
+  user             User?               @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name             String
+  email            String              @unique
+  phone            String
+  designation      String              // "Senior Carpet Cleaning Tech", "Licensed Pest Exterminator", "Bond Cleaning Inspector"
+  department       String              @default("Cleaning & Pest Control") // Carpet, Pest, Bond, Inspection, Operations
+  status           String              @default("ACTIVE") // ACTIVE, ON_LEAVE, INACTIVE
+  hourlyRate       Float               @default(35.0)
+  skills           String?             // JSON array of certified skills e.g. ["Steam Carpet", "Pest Management", "Tile Cleaning"]
+  emergencyContact String?
+  address          String?
+  licenseNumber    String?             // QLD Pest Management License or White Card
+  joinDate         DateTime            @default(now())
+  assignedBookings Booking[]           @relation("PrimaryTechnician")
+  crewAssignments  BookingCrewMember[] // All crew assignments where this employee is working
+  jobReports       JobReport[]
+  attendances      Attendance[]
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+}
+
+model Attendance {
+  id          String    @id @default(cuid())
+  employeeId  String
+  employee    Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  date        DateTime  @default(now())
+  checkIn     DateTime?
+  checkOut    DateTime?
+  status      String    @default("PRESENT") // PRESENT, ABSENT, LEAVE, HALF_DAY
+  workNotes   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([employeeId, date])
+}
+
+model JobReport {
+  id                String     @id @default(cuid())
+  bookingId         String     @unique
+  booking           Booking    @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  employeeId        String?
+  employee          Employee?  @relation(fields: [employeeId], references: [id], onDelete: SetNull)
+  visitTime         DateTime?
+  completionTime    DateTime?
+  status            String     @default("SCHEDULED") // SCHEDULED, ARRIVED, IN_PROGRESS, COMPLETED, ISSUE_REPORTED
+  workDescription   String?
+  faultNotes        String?    // Description of pre-existing faults/stains/infestations noticed on arrival
+  treatmentApplied  String?    // E.g. "High heat extraction + Termiticide barrier spray"
+  checklist         String?    // JSON array of completed inspection checks
+  customerSignature String?    // Base64 or URL
+  summaryNotes      String?
+  photos            JobPhoto[]
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+}
+
+model JobPhoto {
+  id          String    @id @default(cuid())
+  jobReportId String
+  jobReport   JobReport @relation(fields: [jobReportId], references: [id], onDelete: Cascade)
+  photoUrl    String
+  type        String    @default("BEFORE") // BEFORE, DURING, AFTER, FAULT_EVIDENCE
+  caption     String?
+  uploadedBy  String?   // Name or Employee Code
+  createdAt   DateTime  @default(now())
+}
+
+// ----------------------------------------------------
+// 5. REMINDERS & NOTIFICATIONS
+// ----------------------------------------------------
+
+model ReminderLog {
+  id             String    @id @default(cuid())
+  bookingId      String
+  booking        Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  recipientEmail String
+  recipientPhone String?
+  channel        String    // EMAIL, SMS, IN_APP, ALL
+  scheduledFor   DateTime
+  sentAt         DateTime?
+  status         String    @default("SENT") // PENDING, SENT, FAILED
+  error          String?
+  createdAt      DateTime  @default(now())
+}
+
+model Notification {
+  id         String    @id @default(cuid())
+  userId     String?
+  user       User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  roleTarget String?   // "CUSTOMER", "EMPLOYEE", "ADMIN", "ALL"
+  title      String
+  message    String
+  type       String    @default("INFO") // INFO, SUCCESS, WARNING, ERROR, QUOTE, PAYMENT, REMINDER
+  link       String?
+  isRead     Boolean   @default(false)
+  readAt     DateTime?
+  createdAt  DateTime  @default(now())
+}
+
+// ----------------------------------------------------
+// 6. SERVICES, CATEGORIES & CMS
 // ----------------------------------------------------
 
 model ServiceCategory {
@@ -167,12 +382,12 @@ model Service {
   description    String?
   priceStarting  Float?
   priceUnit      String?          @default("Fixed") // Hourly, Sqm, Room, Fixed
-  duration       String? // e.g. "2-3 hours"
+  duration       String?          // e.g. "2-3 hours"
   icon           String?
   heroImage      String?
-  gallery        String? // JSON string array of image URLs
-  features       String? // JSON string array of bullet points
-  tabData        String? // JSON string for tabs (residential, commercial, outdoor)
+  gallery        String?          // JSON string array of image URLs
+  features       String?          // JSON string array of bullet points
+  tabData        String?          // JSON string for tabs (residential, commercial, outdoor)
   metaTitle      String?
   metaDesc       String?
   metaKeywords   String?
@@ -186,17 +401,13 @@ model Service {
   updatedAt      DateTime         @updatedAt
 }
 
-// ----------------------------------------------------
-// 4. CMS PAGES, BLOGS, FAQS, TESTIMONIALS
-// ----------------------------------------------------
-
 model Page {
   id           String   @id @default(cuid())
   title        String
   slug         String   @unique
   heading      String?
   subheading   String?
-  content      String? // HTML or Markdown
+  content      String?  // HTML or Markdown
   bannerImage  String?
   metaTitle    String?
   metaDesc     String?
@@ -204,7 +415,7 @@ model Page {
   canonicalUrl String?
   ogImage      String?
   robots       String?  @default("index, follow")
-  customSchema String? // JSON-LD custom string
+  customSchema String?  // JSON-LD custom string
   isPublished  Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -224,13 +435,13 @@ model Blog {
   title        String
   slug         String        @unique
   excerpt      String?
-  content      String // HTML or Markdown
+  content      String        // HTML or Markdown
   featuredImg  String?
   author       String        @default("Brisbane Carpet & Pest Experts")
   readTime     Int           @default(5)
   categoryId   String?
   category     BlogCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  tags         String? // Comma-separated or JSON
+  tags         String?       // Comma-separated or JSON
   metaTitle    String?
   metaDesc     String?
   metaKeywords String?
@@ -258,7 +469,7 @@ model Faq {
   answer     String
   categoryId String?
   category   FaqCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  serviceTag String? // Optional tag linking FAQ to a specific service or page
+  serviceTag String?      // Optional tag linking FAQ to a specific service or page
   order      Int          @default(0)
   isActive   Boolean      @default(true)
   createdAt  DateTime     @default(now())
@@ -291,10 +502,6 @@ model Media {
   createdAt DateTime @default(now())
 }
 
-// ----------------------------------------------------
-// 5. COMMUNICATIONS, LOGS & SETTINGS
-// ----------------------------------------------------
-
 model EmailLog {
   id        String   @id @default(cuid())
   recipient String
@@ -314,25 +521,15 @@ model WhatsappLog {
   createdAt DateTime @default(now())
 }
 
-model Notification {
-  id        String   @id @default(cuid())
-  title     String
-  message   String
-  type      String   @default("INFO") // INFO, SUCCESS, WARNING, ERROR
-  link      String?
-  isRead    Boolean  @default(false)
-  createdAt DateTime @default(now())
-}
-
 model ActivityLog {
   id         String   @id @default(cuid())
   userId     String?
   user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   userName   String?
-  action     String // CREATE, UPDATE, DELETE, LOGIN, LOGOUT, EXPORT, STATUS_CHANGE
-  module     String // Services, Bookings, Enquiries, Settings, Blogs, Auth, Emails, WhatsApp, etc.
+  action     String   // CREATE, UPDATE, DELETE, LOGIN, LOGOUT, EXPORT, STATUS_CHANGE, APPROVAL, PAYMENT
+  module     String   // Services, Bookings, Quotations, Invoices, HRM, Employee, Payments, Settings, Auth
   entityId   String?
-  details    String? // JSON formatted string with diff or context
+  details    String?  // JSON formatted string with diff or context
   ipAddress  String?
   userAgent  String?
   createdAt  DateTime @default(now())
@@ -341,8 +538,8 @@ model ActivityLog {
 model SiteSetting {
   id        String   @id @default(cuid())
   key       String   @unique
-  value     String // JSON or string value
-  group     String   @default("general") // general, contact, seo, header, footer, booking, social
+  value     String   // JSON or string value
+  group     String   @default("general") // general, contact, seo, header, footer, booking, social, payment
   label     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
