@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
+import React from "react";
 import Link from "next/link";
-import { Sparkles, PhoneCall, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Sparkles, PhoneCall, ArrowRight, CheckCircle2, ShieldCheck, Flame } from "lucide-react";
 import HeadServicesSlider from "../components/HeadServicesSlider";
 
 export default function Hero() {
@@ -61,76 +61,114 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Sofa Image Wrapper with Background "we clean" Watermark and Pointer System */}
-          <div className="relative w-full max-w-5xl mx-auto flex justify-center items-center z-10 px-2 sm:px-4 mt-8 sm:mt-12">
+          {/* Sofa Image Wrapper with Background "we clean" Watermark and Responsive Pointer System */}
+          <div className="relative w-full max-w-5xl mx-auto flex justify-center items-center z-10 px-2 sm:px-4 mt-6 sm:mt-10">
             
-            {/* Stable Fully-Responsive "we clean" Watermark (No jump on scroll) */}
+            {/* Stable Fully-Responsive "we clean" Watermark */}
             <div
-              className="pointer-events-none absolute -top-8 sm:-top-14 md:-top-20 lg:-top-24 left-1/2 -translate-x-1/2 text-[16vw] sm:text-[14vw] md:text-[11vw] lg:text-[12rem] font-black text-[#43934a]/12 uppercase tracking-tighter whitespace-nowrap z-0 select-none leading-none"
+              className="pointer-events-none absolute -top-8 sm:-top-14 md:-top-20 lg:-top-24 left-1/2 -translate-x-1/2 text-[15vw] sm:text-[13vw] md:text-[11vw] lg:text-[11.5rem] font-black text-[#43934a]/12 uppercase tracking-tighter whitespace-nowrap z-0 select-none leading-none"
               aria-hidden="true"
             >
               we clean
             </div>
 
-            <div className="relative w-full flex justify-center items-center z-10">
+            {/* Sofa Image Container with Responsive Pointer Overlay */}
+            <div className="relative w-full max-w-4xl flex justify-center items-center z-10 select-none">
               <img
                 src="https://qleen.bold-themes.com/demo-01/wp-content/uploads/sites/2/2025/07/hero_image_01.png"
-                alt="Furniture Cleaning"
-                className="w-full max-w-5xl h-auto object-contain drop-shadow-xl"
+                alt="Professional Sofa and Furniture Steam Cleaning Brisbane"
+                className="w-full h-auto object-contain drop-shadow-2xl"
               />
 
-              {/* Pointer System on the Sofa */}
-              <div
-                className="absolute z-20 pointer-events-none"
-                style={{
-                  bottom: "36%",
-                  left: "50%",
-                  transform: "translateX(-20%)",
-                }}
+              {/* =========================================================================
+                  POINTER SYSTEM 1: Main "Furniture Cleaning" Callout (Left Cushion)
+                  Responsive vector-drawn leader line + glowing hotspot radar pin
+                  ========================================================================= */}
+              <div 
+                className="absolute top-[33%] sm:top-[35%] md:top-[37%] left-[28%] sm:left-[32%] md:left-[35%] z-20 pointer-events-auto group"
+                title="Professional Furniture & Upholstery Deep Cleaning"
               >
                 <div className="relative flex items-center">
-                  {/* Animated Start Circle */}
-                  <span
-                    className="relative w-3.5 h-3.5 sm:w-5 sm:h-5 bg-[#ff8a00] rounded-full pulse-circle shadow-md"
-                    style={{
-                      position: "absolute",
-                      left: "3px",
-                      bottom: "-22px",
-                      transform: "rotate(-45deg)",
-                    }}
-                  />
-
-                  {/* Angled Line */}
-                  <span
-                    className="bg-[#ff8a00]"
-                    style={{
-                      height: "2px",
-                      width: "1.8em",
-                      position: "absolute",
-                      left: "1px",
-                      bottom: "-0.6em",
-                      transform: "rotate(-45deg)",
-                      transformOrigin: "left bottom",
-                    }}
-                  />
-
-                  {/* Straight Horizontal Line */}
-                  <span className="ml-[1.4em] sm:ml-[2em] w-16 sm:w-28 lg:w-36 h-[2px] bg-[#ff8a00]" />
-
-                  {/* End Circle */}
-                  <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-[#ff8a00] rounded-full -ml-1" />
-
-                  {/* Cursive Label "Furniture Cleaning" */}
-                  <span
-                    className="absolute -top-6 sm:-top-7 left-[1.5em] sm:left-[2.2em] italic text-xs sm:text-base lg:text-lg font-bold text-gray-800 whitespace-nowrap bg-white/80 backdrop-blur-xs px-2 py-0.5 rounded-md shadow-2xs"
-                    style={{
-                      fontFamily: "Caveat, 'Brush Script MT', cursive, sans-serif",
-                    }}
-                  >
-                    Furniture Cleaning
+                  {/* Glowing Radar Pulse Dot */}
+                  <span className="relative flex h-3.5 w-3.5 sm:h-5 sm:w-5 items-center justify-center shrink-0">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-80"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 sm:h-3.5 sm:w-3.5 bg-gradient-to-tr from-orange-600 via-amber-500 to-yellow-400 border-2 border-white shadow-lg shadow-orange-950/40"></span>
                   </span>
+
+                  {/* High-Precision SVG Leader Line (Angled + Horizontal) */}
+                  <svg
+                    className="w-20 ml-[-13px] sm:w-32 md:w-40 h-10 sm:h-14 md:h-16 -ml-1 -mt-7 sm:-mt-10 md:-mt-12 overflow-visible pointer-events-none"
+                    viewBox="0 0 160 60"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M 6 54 L 45 14 L 154 14"
+                      stroke="#ff7a00"
+                      strokeWidth="2.75"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="drop-shadow-sm"
+                    />
+                    <circle cx="154" cy="14" r="3.5" fill="#ff7a00" />
+                  </svg>
+
+                  {/* Cursive Label Pill Badge */}
+                  <div className="absolute -top-9 sm:-top-13 md:-top-15 left-10 sm:left-14 md:left-18 flex flex-col items-start">
+                    <div className="bg-white/95 backdrop-blur-md px-2.5 py-0.5 sm:px-3.5 sm:py-1 rounded-xl shadow-lg border border-orange-200/90 flex items-center gap-1 sm:gap-1.5 hover:scale-105 transition-transform duration-200 ring-1 ring-black/5">
+                      <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-orange-500 shrink-0" />
+                      <span className="font-caveat font-bold text-xs sm:text-base md:text-lg text-gray-900 whitespace-nowrap leading-tight">
+                        Furniture Cleaning
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
+
+              {/* =========================================================================
+                  POINTER SYSTEM 2: "Deep Steam & Stain Removal" (Right Cushion - Tablet/Desktop)
+                  ========================================================================= */}
+              <div 
+                className="hidden sm:block absolute top-[44%] md:top-[46%] right-[20%] md:right-[24%] z-20 pointer-events-auto group"
+                title="Deep Steam Extraction & Odor Elimination"
+              >
+                <div className="relative flex items-center flex-row-reverse">
+                  {/* Glowing Radar Pulse Dot */}
+                  <span className="relative flex ml-[-15px] h-4 w-4 sm:h-5 sm:w-5 items-center justify-center shrink-0">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-80"></span>
+                    <span className="relative inline-flex rounded-full  h-2.5 w-2.5 sm:h-3.5 sm:w-3.5 bg-gradient-to-tr from-emerald-600 via-teal-500 to-emerald-300 border-2 border-white shadow-lg shadow-emerald-950/40"></span>
+                  </span>
+
+                  {/* SVG Leader Line Going Up-Left */}
+                  <svg
+                    className="w-24 sm:w-32 md:w-36 h-10 sm:h-12 -mr-1 -mt-7 sm:-mt-9 overflow-visible pointer-events-none"
+                    viewBox="0 0 140 50"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M 134 44 L 95 12 L 6 12"
+                      stroke="#10b981"
+                      strokeWidth="2.75"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="drop-shadow-sm"
+                    />
+                    <circle cx="6" cy="12" r="3.5" fill="#10b981" />
+                  </svg>
+
+                  {/* Cursive Label Pill Badge */}
+                  <div className="absolute -top-9 sm:-top-11 right-10 sm:right-14 flex flex-col items-end">
+                    <div className="bg-white/95 backdrop-blur-md px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-xl shadow-lg border border-emerald-200/90 flex items-center gap-1 sm:gap-1.5 hover:scale-105 transition-transform duration-200 ring-1 ring-black/5">
+                      <Flame className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-600 shrink-0" />
+                      <span className="font-caveat font-bold text-xs sm:text-sm md:text-base text-gray-900 whitespace-nowrap leading-tight">
+                        Deep Steam & Stain Removal
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
 

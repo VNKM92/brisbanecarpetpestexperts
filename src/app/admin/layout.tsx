@@ -26,7 +26,6 @@ import {
   X,
   ExternalLink,
   ChevronRight,
-  Bell,
   Clock,
   Briefcase,
   Receipt,
@@ -35,6 +34,8 @@ import {
   CreditCard,
   BarChart3,
 } from "lucide-react";
+import { AdminNotificationProvider, useAdminNotifications } from "@/context/AdminNotificationContext";
+import NotificationCenter from "./components/NotificationCenter";
 
 interface AdminUser {
   id: string;
@@ -49,13 +50,13 @@ const NAV_ITEMS = [
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
   ]},
   { group: "Demand & Work Orders", items: [
-    { name: "Quotations & Approvals", href: "/admin/quotations", icon: Clock },
+    { name: "Quotations & Approvals", href: "/admin/quotations", icon: Clock, badgeKey: "quotes" },
     { name: "Crew & Work Assignments", href: "/admin/assignments", icon: Users },
     { name: "Technician & Customer Reports", href: "/admin/reports", icon: BarChart3 },
     { name: "Bookings Calendar", href: "/admin/bookings", icon: CalendarCheck },
     { name: "Invoices & Billing", href: "/admin/invoices", icon: Receipt },
     { name: "Orders", href: "/admin/orders", icon: ShoppingBag },
-    { name: "Enquiries", href: "/admin/enquiries", icon: Inbox },
+    { name: "Enquiries", href: "/admin/enquiries", icon: Inbox, badgeKey: "enquiries" },
     { name: "Customers", href: "/admin/customers", icon: Users2 },
   ]},
   { group: "Human Resources (HRM)", items: [
@@ -85,12 +86,15 @@ const NAV_ITEMS = [
   ]},
 ];
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+function AdminLayoutInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<AdminUser | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Real-time unread counts from context
+  const { unreadTotal, unreadEnquiries, unreadQuotes } = useAdminNotifications();
 
   // If on login page, render without sidebar shell
   const isLoginPage = pathname === "/admin/login";
@@ -195,22 +199,46 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 {group.items.map((item) => {
                   const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
                   const Icon = item.icon;
+
+                  // Determine dynamic badge count for navigation item
+                  let badgeCount = 0;
+                  if (item.badgeKey === "enquiries") badgeCount = unreadEnquiries;
+                  if (item.badgeKey === "quotes") badgeCount = unreadQuotes;
+
                   return (
                     <Link
                       key={item.href}
                       href={item.href}
                       onClick={() => setSidebarOpen(false)}
-                      className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
+                      className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all group ${
                         isActive
                           ? "bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20 shadow-sm"
                           : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
                       }`}
                     >
-                      <Icon size={16} className={isActive ? "text-emerald-400" : "text-slate-400"} />
-                      <span>{item.name}</span>
-                      {isActive && (
-                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                      )}
+                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                        <Icon size={16} className={`shrink-0 ${isActive ? "text-emerald-400" : "text-slate-400 group-hover:text-slate-200"}`} />
+                        <span className="truncate">{item.name}</span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                        {/* Dynamic Count Badge */}
+                        {badgeCount > 0 && (
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold shadow-sm transition-all duration-300 ${
+                              item.badgeKey === "enquiries"
+                                ? "bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 shadow-orange-950/60"
+                                : "bg-blue-600/30 text-blue-300 border border-blue-500/40"
+                            }`}
+                          >
+                            {badgeCount > 99 ? "99+" : badgeCount}
+                          </span>
+                        )}
+
+                        {isActive && (
+                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+                        )}
+                      </div>
                     </Link>
                   );
                 })}
@@ -249,12 +277,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Top Navbar */}
         <header className="h-16 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30">
           <div className="flex items-center gap-3">
+            {/* Mobile Hamburger Burger Button with Badge */}
             <button
               onClick={() => setSidebarOpen(true)}
-              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 lg:hidden"
+              className="relative p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 lg:hidden transition"
+              title="Open Navigation Menu"
             >
               <Menu size={20} />
+              {unreadEnquiries > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-extrabold text-[9px] flex items-center justify-center shadow-md animate-pulse">
+                  {unreadEnquiries > 99 ? "99+" : unreadEnquiries}
+                </span>
+              )}
             </button>
+
             <div className="hidden sm:flex items-center gap-2 text-xs text-slate-400">
               <span>Admin Console</span>
               <ChevronRight size={14} />
@@ -264,11 +300,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            {/* Enterprise Gmail-Style Notification Bell Center */}
+            <NotificationCenter />
+
             <Link
               href="/"
               target="_blank"
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition-colors"
+              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition-colors"
             >
               <ExternalLink size={13} />
               <span>Live Website</span>
@@ -276,16 +315,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
             <Link
               href="/dashboard"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 text-xs font-medium border border-blue-500/30 transition-colors"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 text-xs font-medium border border-blue-500/30 transition-colors"
             >
               <span>Customer Portal</span>
             </Link>
 
             <Link
               href="/employee"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 text-xs font-medium border border-emerald-500/30 transition-colors"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 text-xs font-medium border border-emerald-500/30 transition-colors"
             >
-              <span>Field Tech View</span>
+              <span>Field Tech</span>
             </Link>
           </div>
         </header>
@@ -296,5 +335,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </main>
       </div>
     </div>
+  );
+}
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <AdminNotificationProvider>
+      <AdminLayoutInner>{children}</AdminLayoutInner>
+    </AdminNotificationProvider>
   );
 }

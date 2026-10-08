@@ -34,8 +34,9 @@ import {
   HelpCircle,
   Layers,
 } from "lucide-react";
+import { Suspense } from "react";
 
-export default function CustomerDashboard() {
+function CustomerDashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -1624,3 +1625,18 @@ export default function CustomerDashboard() {
     </div>
   );
 }
+
+export default function CustomerDashboard() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white text-xs">
+          Loading Customer Dashboard...
+        </div>
+      }
+    >
+      <CustomerDashboardContent />
+    </Suspense>
+  );
+}
+

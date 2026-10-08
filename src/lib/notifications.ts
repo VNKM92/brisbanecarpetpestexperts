@@ -246,8 +246,8 @@ export async function handleInboundEnquiryNotification(params: {
     roleTarget: 'ADMIN',
     title: `New Customer Enquiry #${params.enquiryNumber}`,
     message: `${fullName} inquired about ${params.service || 'Services'}`,
-    type: 'INFO',
-    link: '/admin/enquiries',
+    type: 'ENQUIRY',
+    link: `/admin/enquiries?id=${params.enquiryId}`,
   });
 
   await logActivity({
